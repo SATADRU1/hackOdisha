@@ -1,6 +1,9 @@
 import type {NextConfig} from 'next';
  
 const nextConfig: NextConfig = {
+  env: {
+    VERBWIRE_API_KEY: process.env.VERBWIRE_API_KEY,
+  },
   /* config options here */
   typescript: {
     ignoreBuildErrors: true,
