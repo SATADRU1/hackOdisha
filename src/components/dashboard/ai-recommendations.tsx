@@ -1,14 +1,22 @@
 'use client';
 
-import { useState } from 'react';
-import type { RecommendOptimalCoinsOutput } from '@/ai/flows/recommend-optimal-coins';
-import { recommendOptimalCoins } from '@/ai/flows/recommend-optimal-coins';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, Wand2, ArrowRight } from 'lucide-react';
 import { Badge } from '../ui/badge';
+import { generateContent } from '@/lib/gemini';
 
-const staticRecommendations: RecommendOptimalCoinsOutput = {
+interface CoinRecommendation {
+  coin: string;
+  reason: string;
+}
+
+interface RecommendationsData {
+  recommendedCoins: CoinRecommendation[];
+}
+
+const defaultRecommendations: RecommendationsData = {
   recommendedCoins: [
     { coin: 'Bitcoin (BTC)', reason: 'Showing strong stability and potential for a breakout. A reliable choice for consistent mining rewards.' },
     { coin: 'Ethereum (ETH)', reason: 'Upcoming network upgrade (Pectra) is creating positive sentiment and price movement.' },
@@ -16,25 +24,55 @@ const staticRecommendations: RecommendOptimalCoinsOutput = {
   ],
 };
 
-export default function AiRecommendations() {
-  const [recommendations, setRecommendations] = useState<RecommendOptimalCoinsOutput | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+const generatePrompt = (): string => {
+  return `As a cryptocurrency mining advisor, analyze the current market conditions and recommend the top 3 cryptocurrencies for mining right now. 
+  Consider factors like current price, mining difficulty, network hash rate, and upcoming network updates. 
+  Format your response as a JSON array of objects with 'coin' and 'reason' properties. Example:
+  
+  [
+    {"coin": "Bitcoin (BTC)", "reason": "Reason for recommendation"},
+    ...
+  ]`;
+};
 
-  const handleGetRecommendations = async () => {
+export default function AiRecommendations() {
+  const [recommendations, setRecommendations] = useState<RecommendationsData | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchRecommendations = async () => {
     setIsLoading(true);
-    setRecommendations(null);
+    setError(null);
+    
     try {
-      const mockMarketData = "Current market is volatile. Bitcoin is stable, Ethereum is rising due to a new update, and Solana is showing high transaction volume.";
-      const result = await recommendOptimalCoins({ marketData: mockMarketData });
-      setRecommendations(result);
-    } catch (error) {
-      console.error('AI recommendation error:', error);
-      // Fallback to static recommendations on API error
-      setRecommendations(staticRecommendations);
+      const prompt = generatePrompt();
+      const response = await generateContent(prompt);
+      
+      try {
+        // Try to parse the response as JSON
+        const parsedResponse = JSON.parse(response);
+        setRecommendations({
+          recommendedCoins: Array.isArray(parsedResponse) 
+            ? parsedResponse.slice(0, 3) // Limit to 3 recommendations
+            : defaultRecommendations.recommendedCoins
+        });
+      } catch (e) {
+        console.warn('Failed to parse AI response, using default recommendations');
+        setRecommendations(defaultRecommendations);
+      }
+    } catch (err) {
+      console.error('Error getting AI recommendations:', err);
+      setError('Failed to fetch recommendations. Using default suggestions.');
+      setRecommendations(defaultRecommendations);
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Load recommendations on component mount
+  useEffect(() => {
+    fetchRecommendations();
+  }, []);
 
   return (
     <Card className="h-full bg-card/50 backdrop-blur-lg border-primary/20 flex flex-col">
@@ -54,13 +92,9 @@ export default function AiRecommendations() {
             <p className="text-muted-foreground">Analyzing market data...</p>
           </div>
         )}
-        {!isLoading && !recommendations && (
-          <div className="space-y-4">
-            <p className="text-muted-foreground max-w-sm mx-auto">Click the button to receive personalized coin recommendations powered by AI.</p>
-            <Button onClick={handleGetRecommendations}>
-              <Wand2 className="mr-2 h-4 w-4" />
-              Get Recommendations
-            </Button>
+        {error && (
+          <div className="text-sm text-red-500 mb-4 p-2 bg-red-50 dark:bg-red-900/20 rounded">
+            {error}
           </div>
         )}
         {!isLoading && recommendations && (
@@ -78,9 +112,23 @@ export default function AiRecommendations() {
                 </li>
               ))}
             </ul>
-             <Button onClick={handleGetRecommendations} variant="outline" className="w-full">
-              <Wand2 className="mr-2 h-4 w-4" />
-              Regenerate
+             <Button 
+              onClick={fetchRecommendations} 
+              variant="outline" 
+              className="w-full"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Wand2 className="mr-2 h-4 w-4" />
+                  Regenerate
+                </>
+              )}
             </Button>
           </div>
         )}

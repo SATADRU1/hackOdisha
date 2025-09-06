@@ -9,19 +9,42 @@ import { Brain, TrendingUp, AlertTriangle, Target, RefreshCw } from "lucide-reac
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 
+interface AIInsightData {
+    sentiment: string;
+    confidence: number;
+    technicalIndicators: {
+        rsi: number;
+        macd: number;
+        bollinger: string;
+        movingAverage: {
+            sma20: number;
+            ema50: number;
+        };
+    };
+    priceTargets: {
+        short: number;
+        medium: number;
+        long: number;
+    };
+    recommendations: string[];
+    riskFactors: string[];
+    keyEvents?: string[];
+    marketOverview?: string;
+}
+
 interface AIInsightsProps {
     symbol?: string;
     timeframe?: string;
-    onInsightsUpdate?: (insights: any) => void;
+    onInsightsUpdate?: (insights: AIInsightData | null) => void;
 }
 
-export function AIInsights({ 
+export default function AIInsights({ 
     symbol = 'BTC', 
     timeframe = '24h',
     onInsightsUpdate 
 }: AIInsightsProps) {
-    const [insights, setInsights] = useState<any>(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [insights, setInsights] = useState<AIInsightData | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('analysis');
     const { toast } = useToast();
 
@@ -31,6 +54,8 @@ export function AIInsights({
 
     const fetchInsights = async () => {
         setIsLoading(true);
+        setInsights(null);
+        
         try {
             const response = await fetch('/api/studio/ai', {
                 method: 'POST',
@@ -38,34 +63,79 @@ export function AIInsights({
                 body: JSON.stringify({
                     action: 'analyze',
                     symbol,
-                    timeframe
+                    timeframe,
+                    marketData: {}
                 })
             });
+
+            if (!response.ok) {
+                throw new Error(`API request failed with status ${response.status}`);
+            }
+
             const data = await response.json();
+            
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
             setInsights(data);
             onInsightsUpdate?.(data);
         } catch (error) {
             console.error('Failed to fetch AI insights:', error);
+            const errorMessage = error instanceof Error ? error.message : 'Failed to fetch insights';
+            
             toast({
                 title: "Error",
-                description: "Failed to load AI insights",
+                description: errorMessage,
                 variant: "destructive",
             });
+            
+            // Set fallback data
+            const fallbackData = {
+                sentiment: 'neutral',
+                confidence: 0.7,
+                technicalIndicators: {
+                    rsi: 50,
+                    macd: 0.01,
+                    bollinger: 'middle_band',
+                    movingAverage: {
+                        sma20: 0,
+                        ema50: 0
+                    }
+                },
+                priceTargets: {
+                    short: 0,
+                    medium: 0,
+                    long: 0
+                },
+                recommendations: [
+                    'Analyzing market data...',
+                    'Please try again later',
+                    'Check your internet connection and API key'
+                ],
+                riskFactors: [
+                    'Market data not available',
+                    'Using fallback analysis',
+                    errorMessage
+                ]
+            };
+            
+            setInsights(fallbackData);
+            onInsightsUpdate?.(fallbackData);
         } finally {
             setIsLoading(false);
         }
     };
 
-    const getSentimentColor = (sentiment: string) => {
+    const getSentimentColor = (sentiment: string = '') => {
         switch (sentiment.toLowerCase()) {
             case 'bullish': return 'bg-green-500/20 text-green-500 border-green-500/30';
             case 'bearish': return 'bg-red-500/20 text-red-500 border-red-500/30';
-            case 'neutral': return 'bg-gray-500/20 text-gray-500 border-gray-500/30';
             default: return 'bg-gray-500/20 text-gray-500 border-gray-500/30';
         }
     };
 
-    const getConfidenceColor = (confidence: number) => {
+    const getConfidenceColor = (confidence: number = 0) => {
         if (confidence >= 0.8) return 'text-green-500';
         if (confidence >= 0.6) return 'text-yellow-500';
         return 'text-red-500';
@@ -216,12 +286,16 @@ export function AIInsights({
                                         Key Events
                                     </h4>
                                     <ul className="space-y-1">
-                                        {insights.keyEvents.map((event: string, index: number) => (
-                                            <li key={index} className="text-sm text-muted-foreground flex items-start gap-2">
-                                                <span className="text-primary mt-1">•</span>
-                                                {event}
-                                            </li>
-                                        ))}
+                                        {insights.keyEvents?.length ? (
+                                            insights.keyEvents.map((event: string, index: number) => (
+                                                <li key={index} className="text-sm text-muted-foreground flex items-start gap-2">
+                                                    <span className="text-primary mt-1">•</span>
+                                                    {event}
+                                                </li>
+                                            ))
+                                        ) : (
+                                            <li className="text-sm text-muted-foreground">No key events to display</li>
+                                        )}
                                     </ul>
                                 </div>
 
@@ -231,12 +305,16 @@ export function AIInsights({
                                         Risk Factors
                                     </h4>
                                     <ul className="space-y-1">
-                                        {insights.riskFactors.map((risk: string, index: number) => (
-                                            <li key={index} className="text-sm text-muted-foreground flex items-start gap-2">
-                                                <span className="text-red-500 mt-1">•</span>
-                                                {risk}
-                                            </li>
-                                        ))}
+                                        {insights.riskFactors?.length ? (
+                                            insights.riskFactors.map((factor: string, index: number) => (
+                                                <li key={index} className="text-sm text-muted-foreground flex items-start gap-2">
+                                                    <span className="text-destructive mt-1">•</span>
+                                                    {factor}
+                                                </li>
+                                            ))
+                                        ) : (
+                                            <li className="text-sm text-muted-foreground">No risk factors identified</li>
+                                        )}
                                     </ul>
                                 </div>
                             </div>

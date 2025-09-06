@@ -15,7 +15,7 @@ interface ChartRendererProps {
     onChartUpdate?: (data: any) => void;
 }
 
-export function ChartRenderer({ 
+function ChartRenderer({ 
     type = 'line', 
     symbol = 'BTC', 
     timeframe = '24h',
@@ -23,8 +23,8 @@ export function ChartRenderer({
 }: ChartRendererProps) {
     const [chartData, setChartData] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [selectedType, setSelectedType] = useState(type);
-    const [selectedTimeframe, setSelectedTimeframe] = useState(timeframe);
+    const [selectedType, setSelectedType] = useState<'line' | 'bar' | 'pie'>(type);
+    const [selectedTimeframe, setSelectedTimeframe] = useState<string>(timeframe);
     const { toast } = useToast();
 
     useEffect(() => {
@@ -151,10 +151,10 @@ export function ChartRenderer({
                 <div className="flex gap-4">
                     <Select
                         value={selectedType}
-                        onValueChange={setSelectedType}
+                        onValueChange={(value: 'line' | 'bar' | 'pie') => setSelectedType(value)}
                     >
-                        <SelectTrigger className="w-32">
-                            <SelectValue />
+                        <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Select chart type" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="line">
@@ -180,10 +180,10 @@ export function ChartRenderer({
 
                     <Select
                         value={selectedTimeframe}
-                        onValueChange={setSelectedTimeframe}
+                        onValueChange={(value: string) => setSelectedTimeframe(value)}
                     >
-                        <SelectTrigger className="w-24">
-                            <SelectValue />
+                        <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Select timeframe" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="1h">1H</SelectItem>
@@ -194,7 +194,14 @@ export function ChartRenderer({
                     </Select>
                 </div>
 
-                <Tabs value={selectedType} onValueChange={setSelectedType}>
+                <Tabs 
+                    value={selectedType} 
+                    onValueChange={(value: string) => {
+                        if (value === 'line' || value === 'bar' || value === 'pie') {
+                            setSelectedType(value);
+                        }
+                    }}
+                >
                     <TabsList className="grid w-full grid-cols-3">
                         <TabsTrigger value="line" className="flex items-center gap-2">
                             <LineChart className="h-4 w-4" />
@@ -226,3 +233,6 @@ export function ChartRenderer({
         </Card>
     );
 }
+
+export { ChartRenderer };
+export default ChartRenderer;

@@ -1,6 +1,6 @@
-import { ai, geminiPro, geminiFlash } from '@/ai/genkit';
+import { generateContent } from './gemini';
 
-// AI Service for cryptocurrency analysis using only Gemini
+// AI Service for cryptocurrency analysis using Gemini
 export class AIService {
   // Use Gemini for market analysis
   static async analyzeMarketWithGemini(symbol: string, timeframe: string, marketData: any) {
@@ -17,7 +17,7 @@ export class AIService {
         4. Risk factors
         5. Investment recommendations
         
-        Format the response as JSON with the following structure:
+        Format the response as a valid JSON object with the following structure:
         {
           "sentiment": "bullish|bearish|neutral",
           "confidence": 0.0-1.0,
@@ -38,18 +38,12 @@ export class AIService {
           "recommendations": [string],
           "riskFactors": [string]
         }
+        
+        Return ONLY the JSON object, no other text or markdown formatting.
       `;
 
-      const response = await ai.generate({
-        model: geminiPro,
-        prompt,
-        config: {
-          temperature: 0.3,
-          maxOutputTokens: 2048,
-        },
-      });
-
-      return JSON.parse(response.text);
+      const response = await generateContent(prompt);
+      return JSON.parse(response);
     } catch (error) {
       console.error('Gemini analysis error:', error);
       throw new Error('Failed to analyze market with Gemini');
@@ -88,16 +82,8 @@ export class AIService {
         }
       `;
 
-      const response = await ai.generate({
-        model: geminiPro,
-        prompt,
-        config: {
-          temperature: 0.4,
-          maxOutputTokens: 2048,
-        },
-      });
-
-      return JSON.parse(response.text);
+      const response = await generateContent(prompt);
+      return JSON.parse(response);
     } catch (error) {
       console.error('Gemini mining recommendations error:', error);
       throw new Error('Failed to get mining recommendations');
@@ -126,18 +112,12 @@ export class AIService {
           "accuracy": number,
           "methodology": "string"
         }
+        
+        Return ONLY the JSON object, no other text or markdown formatting.
       `;
 
-      const response = await ai.generate({
-        model: geminiFlash,
-        prompt,
-        config: {
-          temperature: 0.2,
-          maxOutputTokens: 2048,
-        },
-      });
-
-      return JSON.parse(response.text);
+      const response = await generateContent(prompt);
+      return JSON.parse(response);
     } catch (error) {
       console.error('Gemini price prediction error:', error);
       throw new Error('Failed to predict prices');
@@ -164,18 +144,12 @@ export class AIService {
           "regulatoryUpdates": [string],
           "sentimentScore": number
         }
+        
+        Return ONLY the JSON object, no other text or markdown formatting.
       `;
 
-      const response = await ai.generate({
-        model: geminiPro,
-        prompt,
-        config: {
-          temperature: 0.3,
-          maxOutputTokens: 1024,
-        },
-      });
-
-      return JSON.parse(response.text);
+      const response = await generateContent(prompt);
+      return JSON.parse(response);
     } catch (error) {
       console.error('Gemini market insights error:', error);
       throw new Error('Failed to get market insights');
@@ -224,18 +198,12 @@ export class AIService {
             "suggestions": [string]
           }
         }
+        
+        Return ONLY the JSON object, no other text or markdown formatting.
       `;
 
-      const response = await ai.generate({
-        model: geminiPro,
-        prompt,
-        config: {
-          temperature: 0.3,
-          maxOutputTokens: 1536,
-        },
-      });
-
-      return JSON.parse(response.text);
+      const response = await generateContent(prompt);
+      return JSON.parse(response);
     } catch (error) {
       console.error('Gemini portfolio analysis error:', error);
       throw new Error('Failed to analyze portfolio');
@@ -261,30 +229,34 @@ export class AIService {
         {
           "signals": [
             {
-              "type": "buy|sell|hold",
-              "strength": "weak|moderate|strong",
-              "entryPrice": number,
+              "type": "buy|sell",
+              "entry": number,
               "stopLoss": number,
-              "takeProfit": number,
-              "confidence": number,
-              "reasoning": "string"
+              "takeProfit": [number],
+              "riskRewardRatio": number,
+              "confidence": 0.0-1.0,
+              "timeframe": "string",
+              "expiration": "ISO string"
             }
           ],
-          "overallSentiment": "bullish|bearish|neutral",
-          "riskLevel": "low|medium|high"
+          "analysis": {
+            "trend": "bullish|bearish|neutral",
+            "volatility": "low|medium|high",
+            "volumeAnalysis": "string",
+            "keyLevels": {
+              "support": [number],
+              "resistance": [number]
+            }
+          },
+          "recommendations": [string],
+          "timestamp": "ISO string"
         }
+        
+        Return ONLY the JSON object, no other text or markdown formatting.
       `;
 
-      const response = await ai.generate({
-        model: geminiFlash,
-        prompt,
-        config: {
-          temperature: 0.2,
-          maxOutputTokens: 1024,
-        },
-      });
-
-      return JSON.parse(response.text);
+      const response = await generateContent(prompt);
+      return JSON.parse(response);
     } catch (error) {
       console.error('Gemini trading signals error:', error);
       throw new Error('Failed to generate trading signals');
