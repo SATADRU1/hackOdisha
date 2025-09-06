@@ -236,6 +236,90 @@ export function useStudio() {
         }
     };
 
+    // Mining recommendations
+    const getMiningRecommendations = async (marketData: any, userPreferences?: any) => {
+        setIsLoading(true);
+        try {
+            const response = await fetch('/api/studio/ai', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'mining-recommendations',
+                    marketData,
+                    userPreferences
+                })
+            });
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Failed to get mining recommendations:', error);
+            toast({
+                title: "Error",
+                description: "Failed to get mining recommendations",
+                variant: "destructive",
+            });
+            throw error;
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Portfolio analysis
+    const analyzePortfolio = async (portfolio: any[], marketData: any) => {
+        setIsLoading(true);
+        try {
+            const response = await fetch('/api/studio/ai', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'portfolio-analysis',
+                    portfolio,
+                    marketData
+                })
+            });
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Failed to analyze portfolio:', error);
+            toast({
+                title: "Error",
+                description: "Failed to analyze portfolio",
+                variant: "destructive",
+            });
+            throw error;
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Trading signals
+    const getTradingSignals = async (symbol: string, technicalData: any) => {
+        setIsLoading(true);
+        try {
+            const response = await fetch('/api/studio/ai', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'trading-signals',
+                    symbol,
+                    technicalData
+                })
+            });
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Failed to get trading signals:', error);
+            toast({
+                title: "Error",
+                description: "Failed to get trading signals",
+                variant: "destructive",
+            });
+            throw error;
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     // Combined analysis function
     const getFullAnalysis = async (symbol: string, timeframe: string) => {
         setIsLoading(true);
@@ -281,6 +365,11 @@ export function useStudio() {
         analyzeMarket,
         generatePredictions,
         getMarketInsights,
+        
+        // New AI functions
+        getMiningRecommendations,
+        analyzePortfolio,
+        getTradingSignals,
         
         // Combined functions
         getFullAnalysis,

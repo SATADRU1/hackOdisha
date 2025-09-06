@@ -1,13 +1,38 @@
+'use client';
+
+import { useEffect } from 'react';
 import MarketOverview from '@/components/dashboard/market-overview';
 import AiRecommendations from '@/components/dashboard/ai-recommendations';
 import CoinPerformanceChart from '@/components/dashboard/coin-performance-chart';
 import MarketDominanceChart from '@/components/dashboard/market-dominance-chart';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
+import { useVerbwire } from '@/hooks/use-verbwire';
 
 export default function DashboardPage() {
+  const { walletData, fetchWalletData, isLoading } = useVerbwire();
+
+  useEffect(() => {
+    // Replace with a dynamic user wallet address
+    const userWalletAddress = "0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6";
+    fetchWalletData(userWalletAddress);
+  }, []);
+
   return (
     <div className="space-y-6">
+      {/* Wallet Balance Display */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Wallet Balance</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isLoading && <p>Loading...</p>}
+          {walletData && (
+            <pre className="p-4 bg-muted rounded-md overflow-x-auto">{JSON.stringify(walletData, null, 2)}</pre>
+          )}
+        </CardContent>
+      </Card>
+
       <MarketOverview />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
