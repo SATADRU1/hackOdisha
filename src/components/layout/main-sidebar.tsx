@@ -11,6 +11,10 @@ import {
   Gem,
   Settings,
   FolderOpenDot,
+  CreditCard,
+  Image,
+  BarChart3,
+  Brain,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -25,10 +29,20 @@ import {
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/mining', icon: Pickaxe, label: 'Mining' },
-  { href: '/wallet', icon: Wallet, label: 'Wallet' },
   { href: '/portfolio', icon: FolderOpenDot, label: 'Portfolio' },
   { href: '/analytics', icon: AreaChart, label: 'Analytics' },
   { href: '/pricing', icon: Gem, label: 'Pricing' },
+];
+
+const verbwireItems = [
+  { href: '/verbwire/wallet', icon: Wallet, label: 'Wallet' },
+  { href: '/verbwire/nft', icon: Image, label: 'NFTs' },
+  { href: '/verbwire/payments', icon: CreditCard, label: 'Payments' },
+];
+
+const studioItems = [
+  { href: '/studio/charts', icon: BarChart3, label: 'Charts' },
+  { href: '/studio/ai', icon: Brain, label: 'AI Insights' },
 ];
 
 const NavLink = ({
@@ -101,6 +115,30 @@ export default function MainSidebar() {
         </div>
         <nav className={cn('flex flex-col gap-2', isCollapsed ? 'items-center' : 'px-2')}>
           {navItems.map((item) => (
+            <NavLink key={item.href} item={item} isCollapsed={isCollapsed} />
+          ))}
+          
+          {/* Verbwire Section */}
+          {!isCollapsed && (
+            <div className="pt-4">
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                Verbwire
+              </h3>
+            </div>
+          )}
+          {verbwireItems.map((item) => (
+            <NavLink key={item.href} item={item} isCollapsed={isCollapsed} />
+          ))}
+          
+          {/* Studio Section */}
+          {!isCollapsed && (
+            <div className="pt-4">
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                Studio
+              </h3>
+            </div>
+          )}
+          {studioItems.map((item) => (
             <NavLink key={item.href} item={item} isCollapsed={isCollapsed} />
           ))}
         </nav>

@@ -1,5 +1,5 @@
 import type {NextConfig} from 'next';
-
+ 
 const nextConfig: NextConfig = {
   /* config options here */
   typescript: {
@@ -24,6 +24,15 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api/gofr/:path*',
+        // This should be the URL where your Gofr backend is running
+        destination: 'http://localhost:8080/api/gofr/:path*',
+      },
+    ];
+  },
 };
-
+ 
 export default nextConfig;
