@@ -1,4 +1,4 @@
-cd 'use client';
+'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -398,10 +398,11 @@ export function FocusTimer({ onSessionStart, onSessionComplete, onSessionUpdate 
                                     Stop Session
                                 </Button>
                             </>
-                        )}
                     </div>
                 </CardContent>
             </Card>
         </div>
     );
 }
+
+export default FocusTimer;
