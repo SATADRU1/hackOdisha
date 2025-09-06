@@ -1,0 +1,33 @@
+{
+  "name": "threeway-studio",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "prisma:migrate": "prisma migrate dev --name init",
+    "prisma:generate": "prisma generate"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.0.0",
+    "axios": "^1.4.0",
+    "bullmq": "^2.5.0",
+    "dotenv": "^16.0.0",
+    "fastify": "^4.24.0",
+    "@fastify/cors": "^8.0.0",
+    "ioredis": "^5.3.0",
+    "pg": "^8.11.0",
+    "ws": "^8.13.0",
+    "openai": "^4.0.0",
+    "zod": "^4.20.0"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.5.0",
+    "@types/node": "^20.0.0",
+    "prisma": "^5.0.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.2.0"
+  }
+}
