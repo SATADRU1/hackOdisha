@@ -1,0 +1,27 @@
+{
+  "name": "focus-stake-contract",
+  "version": "1.0.0",
+  "description": "A smart contract for FocusStake deployed on the BlockDAG network.",
+  "main": "scripts/deploy.ts",
+  "scripts": {
+    "test": "hardhat test",
+    "deploy": "hardhat run scripts/deploy.ts --network blockdag_testnet",
+    "compile": "hardhat compile"
+  },
+  "keywords": [
+    "blockchain",
+    "smart-contract",
+    "focusstake"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.0.0"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^1.0.0",
+    "dotenv": "^10.0.0",
+    "typescript": "^4.0.0"
+  },
+  "type": "module"
+}
