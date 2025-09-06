@@ -1,12 +1,15 @@
 package main
 
 import (
-	"focusstake/pkg/handler"
-	"focusstake/pkg/service"
-	"focusstake/pkg/store"
-
-	"gofr.dev/pkg/gofr"
+    "hackodisha/backend/pkg/handler"
+    "hackodisha/backend/pkg/service"
+    "hackodisha/backend/pkg/store"
+    "hackodisha/backend/internal/auth"
+    "hackodisha/backend/internal/mining"
+    "hackodisha/backend/internal/portfolio"
+    "gofr.dev/pkg/gofr"
 )
+
 
 func main() {
 	// Create a new GoFr application instance

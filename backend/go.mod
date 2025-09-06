@@ -15,8 +15,12 @@ require (
 =======
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	golang.org/x/crypto v0.40.0
+<<<<<<< Updated upstream
 	gorm.io/gorm v1.25.5
 >>>>>>> 28d6904abe11d85aa7315f6a6e16f07e9c2e27b3
+=======
+	gorm.io/gorm v1.25.10
+>>>>>>> Stashed changes
 )
 
 require (
@@ -61,6 +65,10 @@ require (
 	github.com/grafana/regexp v0.0.0-20240518133315-a468a5bfb3bc // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.1 // indirect
+	github.com/jackc/pgpassfile v1.0.0 // indirect
+	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
+	github.com/jackc/pgx/v5 v5.6.0 // indirect
+	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
@@ -139,6 +147,7 @@ require (
 	google.golang.org/protobuf v1.36.7 // indirect
 >>>>>>> 28d6904abe11d85aa7315f6a6e16f07e9c2e27b3
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+	gorm.io/driver/postgres v1.6.0 // indirect
 	modernc.org/libc v1.66.3 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.11.0 // indirect

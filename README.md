@@ -1,6 +1,39 @@
-# MineR - Crypto Mining Dashboard
+# FocusStake - Gamified Web3 Focus Protocol
 
-Welcome to **MineR**, a simulated cryptocurrency mining dashboard built with Next.js and Firebase Studio. This application provides a modern, feature-rich interface for users to simulate crypto mining, manage a portfolio, and get AI-powered recommendations.
+Welcome to **FocusStake**, a revolutionary productivity app that uses economic incentives to boost personal focus and fight procrastination. Built with Next.js and GoFr backend, this application combines the Pomodoro technique with blockchain staking to create a powerful psychological motivator for productivity.
+
+## 🎯 Concept
+
+FocusStake transforms focus into a game with real economic stakes. Users stake cryptocurrency to start focus sessions, and if they successfully complete the session (verified by avoiding distracting websites), they get their stake back plus rewards. If they fail, their stake is forfeited to the reward pool for others to win.
+
+## 🚀 How It Uses Sponsor Technologies
+
+### BlockDAG
+The core of the app. Smart contracts on BlockDAG manage:
+- Staking mechanism for focus sessions
+- Reward distribution from the collective pool
+- Verification logic for session completion
+- Automatic stake forfeiture for failed sessions
+
+### Verbwire
+Makes the experience engaging through:
+- Non-transferable NFT badges for focus streaks (e.g., "10-Hour Focus Master," "7-Day Streak")
+- Easy minting of achievement NFTs
+- Integration with wallet management for staking
+
+### Akash Network
+Hosts personalized AI that:
+- Analyzes focus patterns and productivity trends
+- Suggests optimal times of day for focus sessions
+- Recommends session lengths based on user behavior
+- Provides personalized productivity insights
+
+### GoFr
+The backend service that:
+- Manages user accounts and authentication
+- Communicates with BlockDAG smart contracts
+- Tracks focus session data and statistics
+- Handles reward calculations and distributions
 
 ## Getting Started
 
@@ -81,10 +114,26 @@ This project uses the Next.js App Router. Here is an overview of the directory s
 
 ## Tech Stack
 
+### Frontend
 -   **Framework**: [Next.js](https://nextjs.org/) (with App Router)
 -   **UI**: [React](https://react.dev/) & [TypeScript](https://www.typescriptlang.org/)
 -   **Styling**: [Tailwind CSS](https://tailwindcss.com/)
 -   **UI Components**: [ShadCN/UI](https://ui.shadcn.com/)
--   **Generative AI**: [Genkit](https://firebase.google.com/docs/genkit)
 -   **Icons**: [Lucide React](https://lucide.dev/)
 -   **Charts**: [Recharts](https://recharts.org/)
+
+### Backend
+-   **Framework**: [Go](https://golang.org/) with [Gin](https://gin-gonic.com/)
+-   **Database**: [GORM](https://gorm.io/) with SQLite/PostgreSQL
+-   **Authentication**: JWT tokens
+-   **API**: RESTful endpoints
+
+### Blockchain & Web3
+-   **Blockchain**: [BlockDAG](https://blockdag.network/) for smart contracts
+-   **NFT Platform**: [Verbwire](https://verbwire.com/) for achievement badges
+-   **Wallet Integration**: Web3 wallet connectivity
+
+### AI & Analytics
+-   **AI Platform**: [Akash Network](https://akash.network/) for distributed AI
+-   **AI Framework**: [Genkit](https://firebase.google.com/docs/genkit)
+-   **Analytics**: Custom focus pattern analysis
