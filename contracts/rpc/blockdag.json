@@ -1,0 +1,290 @@
+{
+  "jsonrpc": "2.0",
+  "methods": {
+    "blockdag_getStatus": {
+      "description": "Get the current status of the BlockDAG node",
+      "params": {},
+      "returns": {
+        "status": "string",
+        "timestamp": "number",
+        "mining": "boolean",
+        "peers_count": "number",
+        "mempool_size": "number",
+        "current_tips": "number"
+      }
+    },
+    "blockdag_getPeers": {
+      "description": "Get list of connected peers",
+      "params": {},
+      "returns": [
+        {
+          "id": "string",
+          "address": "string",
+          "last_seen": "number"
+        }
+      ]
+    },
+    "blockdag_getMempool": {
+      "description": "Get current mempool status and transactions",
+      "params": {},
+      "returns": {
+        "count": "number",
+        "transactions": [
+          {
+            "id": "string",
+            "size": "number",
+            "fee": "number",
+            "timestamp": "number"
+          }
+        ]
+      }
+    },
+    "blockdag_getVertices": {
+      "description": "Get all vertices in the DAG",
+      "params": {},
+      "returns": [
+        {
+          "id": "string",
+          "hash": "string",
+          "parents": ["string"],
+          "timestamp": "number",
+          "nonce": "number",
+          "weight": "number"
+        }
+      ]
+    },
+    "blockdag_getVertex": {
+      "description": "Get a specific vertex by ID",
+      "params": {
+        "id": "string"
+      },
+      "returns": {
+        "id": "string",
+        "hash": "string",
+        "data": "string",
+        "parents": ["string"],
+        "timestamp": "number",
+        "nonce": "number",
+        "weight": "number"
+      }
+    },
+    "blockdag_getHeaviestPath": {
+      "description": "Get the heaviest path through the DAG",
+      "params": {},
+      "returns": [
+        {
+          "id": "string",
+          "hash": "string",
+          "timestamp": "number",
+          "weight": "number"
+        }
+      ]
+    },
+    "blockdag_submitTransaction": {
+      "description": "Submit a new transaction to the mempool",
+      "params": {
+        "data": "string"
+      },
+      "returns": {
+        "txid": "string",
+        "status": "string",
+        "message": "string"
+      }
+    },
+    "blockdag_getFinalizedVertices": {
+      "description": "Get vertices that are considered finalized",
+      "params": {},
+      "returns": [
+        {
+          "id": "string",
+          "hash": "string",
+          "timestamp": "number",
+          "weight": "number"
+        }
+      ]
+    },
+    "blockdag_getAnticone": {
+      "description": "Get anticone of a specific vertex",
+      "params": {
+        "vertexId": "string"
+      },
+      "returns": [
+        {
+          "id": "string",
+          "hash": "string",
+          "timestamp": "number",
+          "weight": "number"
+        }
+      ]
+    },
+    "blockdag_getTopologicalOrder": {
+      "description": "Get vertices in topological order",
+      "params": {},
+      "returns": [
+        {
+          "id": "string",
+          "hash": "string",
+          "timestamp": "number",
+          "weight": "number"
+        }
+      ]
+    },
+    "blockdag_getMiningStats": {
+      "description": "Get current mining statistics",
+      "params": {},
+      "returns": {
+        "mining": "boolean",
+        "target": "string",
+        "mempool_size": "number",
+        "current_tips": "number",
+        "hashrate": "number"
+      }
+    },
+    "blockdag_startMining": {
+      "description": "Start the mining process",
+      "params": {},
+      "returns": {
+        "success": "boolean",
+        "message": "string"
+      }
+    },
+    "blockdag_stopMining": {
+      "description": "Stop the mining process",
+      "params": {},
+      "returns": {
+        "success": "boolean",
+        "message": "string"
+      }
+    },
+    "blockdag_addPeer": {
+      "description": "Add a new peer to the network",
+      "params": {
+        "address": "string"
+      },
+      "returns": {
+        "success": "boolean",
+        "message": "string"
+      }
+    },
+    "blockdag_removePeer": {
+      "description": "Remove a peer from the network",
+      "params": {
+        "address": "string"
+      },
+      "returns": {
+        "success": "boolean",
+        "message": "string"
+      }
+    },
+    "blockdag_getNetworkInfo": {
+      "description": "Get network information and configuration",
+      "params": {},
+      "returns": {
+        "networkId": "string",
+        "chainId": "number",
+        "version": "string",
+        "protocolVersion": "string",
+        "genesisHash": "string"
+      }
+    },
+    "blockdag_getStorageStats": {
+      "description": "Get storage statistics",
+      "params": {},
+      "returns": {
+        "totalBlocks": "number",
+        "totalTransactions": "number",
+        "storageSize": "number",
+        "freeSpace": "number"
+      }
+    },
+    "blockdag_getConsensusInfo": {
+      "description": "Get consensus algorithm information",
+      "params": {},
+      "returns": {
+        "algorithm": "string",
+        "finality": "string",
+        "confirmationDepth": "number",
+        "orphanRate": "number"
+      }
+    }
+  },
+  "events": {
+    "new_block": {
+      "description": "Emitted when a new block is mined",
+      "data": {
+        "id": "string",
+        "hash": "string",
+        "timestamp": "number",
+        "weight": "number"
+      }
+    },
+    "new_transaction": {
+      "description": "Emitted when a new transaction is added to mempool",
+      "data": {
+        "id": "string",
+        "size": "number",
+        "fee": "number"
+      }
+    },
+    "peer_connected": {
+      "description": "Emitted when a new peer connects",
+      "data": {
+        "id": "string",
+        "address": "string"
+      }
+    },
+    "peer_disconnected": {
+      "description": "Emitted when a peer disconnects",
+      "data": {
+        "id": "string",
+        "address": "string"
+      }
+    },
+    "mining_update": {
+      "description": "Emitted when mining status changes",
+      "data": {
+        "mining": "boolean",
+        "hashrate": "number",
+        "target": "string"
+      }
+    },
+    "consensus_update": {
+      "description": "Emitted when consensus state changes",
+      "data": {
+        "heaviestPath": ["string"],
+        "finalizedBlocks": ["string"],
+        "orphanedBlocks": ["string"]
+      }
+    }
+  },
+  "types": {
+    "Vertex": {
+      "id": "string",
+      "hash": "string",
+      "data": "string",
+      "parents": ["string"],
+      "timestamp": "number",
+      "nonce": "number",
+      "weight": "number"
+    },
+    "Transaction": {
+      "id": "string",
+      "size": "number",
+      "fee": "number",
+      "timestamp": "number"
+    },
+    "Peer": {
+      "id": "string",
+      "address": "string",
+      "last_seen": "number"
+    },
+    "NetworkStatus": {
+      "status": "string",
+      "timestamp": "number",
+      "mining": "boolean",
+      "peers_count": "number",
+      "mempool_size": "number",
+      "current_tips": "number"
+    }
+  }
+}

@@ -31,8 +31,15 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/api/gofr/:path*',
-        // This should be the URL where your Gofr backend is running
-        destination: 'http://localhost:8080/api/gofr/:path*',
+        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081'}/api/v1/:path*`,
+      },
+      {
+        source: '/api/studio/:path*',
+        destination: `${process.env.NEXT_PUBLIC_STUDIO_URL || 'http://localhost:3001'}/api/v1/:path*`,
+      },
+      {
+        source: '/api/blockdag/:path*',
+        destination: `${process.env.NEXT_PUBLIC_BLOCKDAG_URL || 'http://localhost:8080'}/api/v1/:path*`,
       },
     ];
   },

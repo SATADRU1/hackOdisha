@@ -1,139 +1,280 @@
-# FocusStake - Gamified Web3 Focus Protocol
+# HackOdisha - FocusStake Platform
 
-Welcome to **FocusStake**, a revolutionary productivity app that uses economic incentives to boost personal focus and fight procrastination. Built with Next.js and GoFr backend, this application combines the Pomodoro technique with blockchain staking to create a powerful psychological motivator for productivity.
+A comprehensive blockchain-based focus and productivity platform with integrated mining, analytics, and AI insights.
 
-## 🎯 Concept
-
-FocusStake transforms focus into a game with real economic stakes. Users stake cryptocurrency to start focus sessions, and if they successfully complete the session (verified by avoiding distracting websites), they get their stake back plus rewards. If they fail, their stake is forfeited to the reward pool for others to win.
-
-## 🚀 How It Uses Sponsor Technologies
-
-### BlockDAG
-The core of the app. Smart contracts on BlockDAG manage:
-- Staking mechanism for focus sessions
-- Reward distribution from the collective pool
-- Verification logic for session completion
-- Automatic stake forfeiture for failed sessions
-
-### Verbwire
-Makes the experience engaging through:
-- Non-transferable NFT badges for focus streaks (e.g., "10-Hour Focus Master," "7-Day Streak")
-- Easy minting of achievement NFTs
-- Integration with wallet management for staking
-
-### Akash Network
-Hosts personalized AI that:
-- Analyzes focus patterns and productivity trends
-- Suggests optimal times of day for focus sessions
-- Recommends session lengths based on user behavior
-- Provides personalized productivity insights
-
-### GoFr
-The backend service that:
-- Manages user accounts and authentication
-- Communicates with BlockDAG smart contracts
-- Tracks focus session data and statistics
-- Handles reward calculations and distributions
-
-## Getting Started
-
-To run the application locally, follow these steps:
-
-1.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
-
-2.  **Run the development server:**
-    ```bash
-    npm run dev
-    ```
-
-3.  Open [http://localhost:9002](http://localhost:9002) with your browser to see the result.
-
-## Folder Structure
-
-This project uses the Next.js App Router. Here is an overview of the directory structure:
+## 🏗️ Architecture Overview
 
 ```
-.
-├── src/
-│   ├── app/
-│   │   ├── (app)/                # Group for authenticated app pages
-│   │   │   ├── analytics/
-│   │   │   ├── dashboard/
-│   │   │   ├── layout.tsx        # Main layout for the dashboard
-│   │   │   ├── mining/
-│   │   │   ├── portfolio/
-│   │   │   ├── pricing/
-│   │   │   └── settings/
-│   │   ├── auth/                 # Authentication page (Login/Sign Up)
-│   │   ├── globals.css           # Global styles and Tailwind directives
-│   │   ├── layout.tsx            # Root layout of the entire application
-│   │   └── page.tsx              # Root page, redirects to /auth
-│   │
-│   ├── components/
-│   │   ├── analytics/            # Components specific to the Analytics page
-│   │   ├── auth/                 # Components for the Auth page
-│   │   ├── dashboard/            # Components for the Dashboard page
-│   │   ├── layout/               # Reusable layout components (Header, Sidebar)
-│   │   ├── mining/               # Components for the Mining page
-│   │   ├── portfolio/            # Components for the Portfolio page
-│   │   ├── pricing/              # Components for the Pricing page
-│   │   ├── ui/                   # ShadCN UI components (Button, Card, etc.)
-│   │   └── theme-provider.tsx    # Provider for Next-themes
-│   │
-│   ├── hooks/
-│   │   └── use-toast.ts          # Hook for showing toast notifications
-│   │
-│   ├── lib/
-│   │   ├── mock-data.ts          # Mock data for charts and tables
-│   │   └── utils.ts              # Utility functions (e.g., `cn` for class names)
-│   │
-│   └── ai/
-│       ├── flows/                # Genkit AI flows
-│       └── genkit.ts             # Genkit configuration
+hackOdisha/
+├── src/                          # Next.js Frontend
+│   ├── app/                      # App Router pages
+│   ├── components/               # React components
+│   ├── hooks/                    # Custom React hooks
+│   └── lib/                      # Utility libraries
 │
-├── public/                     # Static assets (images, fonts, etc.)
+├── backend/                      # GoFR Backend (Go)
+│   ├── cmd/gofr/                 # Main application entry
+│   ├── internal/                 # Private application code
+│   │   ├── auth/                 # Authentication handlers
+│   │   ├── focus/                # Focus session management
+│   │   ├── mining/               # Mining operations
+│   │   ├── portfolio/            # Portfolio management
+│   │   └── models/               # Data models
+│   └── pkg/                      # Public packages
 │
-├── .env                        # Environment variables (e.g., API keys)
-├── next.config.ts              # Next.js configuration
-├── tailwind.config.ts          # Tailwind CSS configuration
-└── tsconfig.json               # TypeScript configuration
+├── services/                     # External services
+│   ├── blockdag-node/            # BlockDAG network node
+│   │   ├── cmd/blockdag-node/    # Node entry point
+│   │   ├── internal/             # Core node components
+│   │   │   ├── dag/              # DAG structure management
+│   │   │   ├── consensus/        # Consensus algorithms
+│   │   │   ├── mempool/          # Transaction pool
+│   │   │   ├── miner/            # Proof of Work mining
+│   │   │   ├── p2p/              # Peer-to-peer networking
+│   │   │   └── rpc/              # JSON-RPC server
+│   │   └── storage/              # Data persistence
+│   │
+│   └── studio/                   # Threeway Studio (Analytics & AI)
+│       ├── src/                  # TypeScript source
+│       │   ├── adapters/         # External service adapters
+│       │   ├── api/              # REST API endpoints
+│       │   ├── db/               # Database schemas
+│       │   ├── jobs/             # Background jobs
+│       │   └── lib/              # Utility libraries
+│       └── Dockerfile            # Container configuration
+│
+├── contracts/                    # Shared API/DTO schemas
+│   ├── http/                     # HTTP API schemas
+│   ├── rpc/                      # RPC method definitions
+│   └── smart-contracts/          # Solidity contracts
+│
+├── deploy/                       # Infrastructure as Code
+│   ├── docker-compose.yml        # Multi-service orchestration
+│   ├── nginx.conf                # Reverse proxy config
+│   ├── env.example               # Environment variables
+│   └── k8s/                      # Kubernetes manifests
+│
+└── docs/                         # Documentation
 ```
 
-### Key Files & Directories
+## 🚀 Quick Start
 
--   **`src/app`**: Contains all routes and UI for the application, following the App Router convention.
--   **`src/app/(app)`**: This is a route group for all pages that share the main application layout (sidebar, header).
--   **`src/components`**: All React components are organized here, categorized by the page or feature they belong to.
--   **`src/components/ui`**: Contains the reusable UI components from [ShadCN/UI](https://ui.shadcn.com/).
--   **`src/lib`**: Helper functions, utility code, and mock data.
--   **`src/ai`**: Home for all Generative AI functionality, powered by [Genkit](https://firebase.google.com/docs/genkit).
--   **`src/app/globals.css`**: Defines the application's theme (colors, fonts) using CSS variables for both light and dark modes.
+### Prerequisites
 
-## Tech Stack
+- Docker & Docker Compose
+- Node.js 18+ (for local development)
+- Go 1.23+ (for backend development)
+- PostgreSQL 15+ (for production)
 
-### Frontend
--   **Framework**: [Next.js](https://nextjs.org/) (with App Router)
--   **UI**: [React](https://react.dev/) & [TypeScript](https://www.typescriptlang.org/)
--   **Styling**: [Tailwind CSS](https://tailwindcss.com/)
--   **UI Components**: [ShadCN/UI](https://ui.shadcn.com/)
--   **Icons**: [Lucide React](https://lucide.dev/)
--   **Charts**: [Recharts](https://recharts.org/)
+### Development Setup
 
-### Backend
--   **Framework**: [Go](https://golang.org/) with [Gin](https://gin-gonic.com/)
--   **Database**: [GORM](https://gorm.io/) with SQLite/PostgreSQL
--   **Authentication**: JWT tokens
--   **API**: RESTful endpoints
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd hackOdisha
+   ```
 
-### Blockchain & Web3
--   **Blockchain**: [BlockDAG](https://blockdag.network/) for smart contracts
--   **NFT Platform**: [Verbwire](https://verbwire.com/) for achievement badges
--   **Wallet Integration**: Web3 wallet connectivity
+2. **Set up environment variables**
+   ```bash
+   cp deploy/env.example .env
+   # Edit .env with your configuration
+   ```
 
-### AI & Analytics
--   **AI Platform**: [Akash Network](https://akash.network/) for distributed AI
--   **AI Framework**: [Genkit](https://firebase.google.com/docs/genkit)
--   **Analytics**: Custom focus pattern analysis
+3. **Start all services with Docker Compose**
+   ```bash
+   cd deploy
+   docker-compose up -d
+   ```
+
+4. **Access the application**
+   - Frontend: http://localhost:3000
+   - GoFR Backend: http://localhost:8081
+   - Threeway Studio: http://localhost:3001
+   - BlockDAG Node: http://localhost:8080
+
+### Local Development
+
+#### Frontend (Next.js)
+```bash
+npm install
+npm run dev
+```
+
+#### GoFR Backend (Go)
+```bash
+cd backend
+go mod download
+go run cmd/gofr/main.go
+```
+
+#### Threeway Studio (Node.js)
+```bash
+cd services/studio
+npm install
+npm run dev
+```
+
+#### BlockDAG Node (Go)
+```bash
+cd services/blockdag-node
+go mod download
+go run cmd/blockdag-node/main.go
+```
+
+## 🔧 Services
+
+### Frontend (Next.js)
+- **Port**: 3000
+- **Framework**: Next.js 15 with App Router
+- **UI**: Tailwind CSS + shadcn/ui
+- **Features**: Dashboard, Focus Timer, Portfolio, Mining, Analytics
+
+### GoFR Backend
+- **Port**: 8081
+- **Framework**: Gin (Go)
+- **Database**: PostgreSQL
+- **Features**: User management, Focus sessions, Portfolio tracking
+
+### Threeway Studio
+- **Port**: 3001
+- **Framework**: Fastify (Node.js)
+- **Database**: PostgreSQL + Redis
+- **Features**: Analytics, AI insights, Chart generation, Real-time data
+
+### BlockDAG Node
+- **Ports**: 8080 (RPC), 4001 (P2P)
+- **Framework**: Go
+- **Storage**: BadgerDB
+- **Features**: BlockDAG consensus, Mining, P2P networking
+
+## 📊 Features
+
+### Core Features
+- **Focus Sessions**: Pomodoro-style focus tracking with rewards
+- **Mining Integration**: Earn tokens through focus and mining
+- **Portfolio Management**: Track investments and earnings
+- **AI Insights**: Get personalized recommendations and analytics
+
+### Advanced Features
+- **BlockDAG Network**: Custom blockchain with DAG structure
+- **Real-time Analytics**: Live network and user statistics
+- **Smart Contracts**: FocusStake token and reward system
+- **Multi-network Support**: Alpha, Primordial, and Community networks
+
+## 🛠️ Development
+
+### API Documentation
+
+#### GoFR Backend API
+- **Base URL**: `http://localhost:8081/api/v1`
+- **Authentication**: JWT tokens
+- **Endpoints**:
+  - `POST /auth/login` - User login
+  - `POST /auth/register` - User registration
+  - `GET /focus/status/:userId` - Get focus status
+  - `POST /focus/start` - Start focus session
+  - `GET /portfolio/:userId` - Get portfolio data
+
+#### Threeway Studio API
+- **Base URL**: `http://localhost:3001/api/v1`
+- **Endpoints**:
+  - `GET /ai/insights` - Get AI insights
+  - `GET /charts/tps` - Get TPS chart data
+  - `GET /blockdag/status` - Get BlockDAG status
+  - `WebSocket /ws` - Real-time updates
+
+#### BlockDAG Node API
+- **Base URL**: `http://localhost:8080/api/v1`
+- **RPC**: `http://localhost:8080/rpc`
+- **WebSocket**: `ws://localhost:8080/ws`
+- **Endpoints**:
+  - `GET /status` - Node status
+  - `GET /peers` - Connected peers
+  - `GET /vertices` - DAG vertices
+  - `POST /transactions` - Submit transaction
+
+### Database Schema
+
+The application uses PostgreSQL with the following main schemas:
+- **gofr**: User data, sessions, portfolios
+- **studio**: Analytics, metrics, AI insights
+- **blockdag**: Blocks, transactions, network data
+
+### Smart Contracts
+
+Located in `contracts/smart-contracts/`:
+- **FocusStake.sol**: Main token contract
+- **RewardSystem.sol**: Focus session rewards
+- **MiningPool.sol**: Mining reward distribution
+
+## 🚀 Deployment
+
+### Production Deployment
+
+1. **Set up production environment**
+   ```bash
+   cp deploy/env.example .env.production
+   # Configure production values
+   ```
+
+2. **Deploy with Docker Compose**
+   ```bash
+   docker-compose -f deploy/docker-compose.yml up -d
+   ```
+
+3. **Set up SSL certificates** (optional)
+   ```bash
+   # Place certificates in deploy/ssl/
+   # Update nginx.conf for HTTPS
+   ```
+
+### Kubernetes Deployment
+
+```bash
+kubectl apply -f deploy/k8s/
+```
+
+## 📈 Monitoring
+
+### Health Checks
+- Frontend: `GET /health`
+- GoFR Backend: `GET /health`
+- Threeway Studio: `GET /health`
+- BlockDAG Node: `GET /health`
+
+### Metrics
+- Network metrics via Threeway Studio
+- Application metrics via Prometheus (planned)
+- Log aggregation via ELK stack (planned)
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+### Code Style
+- **Go**: Use `gofmt` and `golint`
+- **TypeScript**: Use ESLint and Prettier
+- **Commit messages**: Follow conventional commits
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🆘 Support
+
+- **Documentation**: Check the `docs/` directory
+- **Issues**: Create GitHub issues for bugs
+- **Discussions**: Use GitHub Discussions for questions
+
+## 🔮 Roadmap
+
+- [ ] Mobile app (React Native)
+- [ ] Advanced AI features
+- [ ] Multi-chain support
+- [ ] Social features
+- [ ] NFT marketplace integration
+- [ ] DeFi protocols integration
