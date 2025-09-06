@@ -2,55 +2,54 @@ package portfolio
 
 import (
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Asset struct {
-	ID           string    `json:"id"`
-	UserID       string    `json:"user_id"`
-	Symbol       string    `json:"symbol"`
-	Amount       float64   `json:"amount"`
-	PurchasePrice float64  `json:"purchase_price"`
-	CurrentPrice  float64  `json:"current_price"`
-	PurchaseDate time.Time `json:"purchase_date"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	ID            string    `json:"id"`
+	UserID        string    `json:"user_id"`
+	Symbol        string    `json:"symbol"`
+	Amount        float64   `json:"amount"`
+	PurchasePrice float64   `json:"purchase_price"`
+	CurrentPrice  float64   `json:"current_price"`
+	PurchaseDate  time.Time `json:"purchase_date"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
 }
 
 type Portfolio struct {
-	UserID      string  `json:"user_id"`
-	TotalValue  float64 `json:"total_value"`
-	TotalGain   float64 `json:"total_gain"`
-	TotalGainPercent float64 `json:"total_gain_percent"`
-	Assets      []Asset `json:"assets"`
-	LastUpdated time.Time `json:"last_updated"`
+	UserID           string    `json:"user_id"`
+	TotalValue       float64   `json:"total_value"`
+	TotalGain        float64   `json:"total_gain"`
+	TotalGainPercent float64   `json:"total_gain_percent"`
+	Assets           []Asset   `json:"assets"`
+	LastUpdated      time.Time `json:"last_updated"`
 }
 
 type PerformanceData struct {
-	UserID     string    `json:"user_id"`
-	Timeframe  string    `json:"timeframe"`
+	UserID     string      `json:"user_id"`
+	Timeframe  string      `json:"timeframe"`
 	DataPoints []DataPoint `json:"data_points"`
-	Summary    Summary   `json:"summary"`
+	Summary    Summary     `json:"summary"`
 }
 
 type DataPoint struct {
-	Timestamp time.Time `json:"timestamp"`
-	Value     float64   `json:"value"`
-	Gain      float64   `json:"gain"`
-	GainPercent float64 `json:"gain_percent"`
+	Timestamp   time.Time `json:"timestamp"`
+	Value       float64   `json:"value"`
+	Gain        float64   `json:"gain"`
+	GainPercent float64   `json:"gain_percent"`
 }
 
 type Summary struct {
-	StartValue    float64 `json:"start_value"`
-	EndValue      float64 `json:"end_value"`
-	TotalGain     float64 `json:"total_gain"`
+	StartValue       float64 `json:"start_value"`
+	EndValue         float64 `json:"end_value"`
+	TotalGain        float64 `json:"total_gain"`
 	TotalGainPercent float64 `json:"total_gain_percent"`
-	BestDay       float64 `json:"best_day"`
-	WorstDay      float64 `json:"worst_day"`
-	Volatility    float64 `json:"volatility"`
+	BestDay          float64 `json:"best_day"`
+	WorstDay         float64 `json:"worst_day"`
+	Volatility       float64 `json:"volatility"`
 }
 
 func GetPortfolio(c *gin.Context) {
@@ -98,12 +97,12 @@ func GetPortfolio(c *gin.Context) {
 	totalGainPercent := (totalGain / totalCost) * 100
 
 	portfolio := Portfolio{
-		UserID:      userID,
-		TotalValue:  totalValue,
-		TotalGain:   totalGain,
+		UserID:           userID,
+		TotalValue:       totalValue,
+		TotalGain:        totalGain,
 		TotalGainPercent: totalGainPercent,
-		Assets:      assets,
-		LastUpdated: time.Now(),
+		Assets:           assets,
+		LastUpdated:      time.Now(),
 	}
 
 	c.JSON(http.StatusOK, portfolio)
@@ -151,7 +150,7 @@ func UpdateAsset(c *gin.Context) {
 
 	// Mock response
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Asset updated successfully",
+		"message":  "Asset updated successfully",
 		"asset_id": assetID,
 		"updates":  updateData,
 	})
@@ -168,7 +167,7 @@ func RemoveAsset(c *gin.Context) {
 
 	// Mock response
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Asset removed successfully",
+		"message":  "Asset removed successfully",
 		"asset_id": assetID,
 	})
 }
@@ -203,21 +202,21 @@ func GetPerformance(c *gin.Context) {
 		gainPercent := (gain / startValue) * 100
 
 		dataPoints = append(dataPoints, DataPoint{
-			Timestamp:  time.Now().Add(-time.Duration(days-i) * 24 * time.Hour),
-			Value:      value,
-			Gain:       gain,
+			Timestamp:   time.Now().Add(-time.Duration(days-i) * 24 * time.Hour),
+			Value:       value,
+			Gain:        gain,
 			GainPercent: gainPercent,
 		})
 	}
 
 	summary := Summary{
-		StartValue:    startValue,
-		EndValue:      currentValue,
-		TotalGain:     currentValue - startValue,
+		StartValue:       startValue,
+		EndValue:         currentValue,
+		TotalGain:        currentValue - startValue,
 		TotalGainPercent: ((currentValue - startValue) / startValue) * 100,
-		BestDay:       5.2,
-		WorstDay:      -3.1,
-		Volatility:    12.5,
+		BestDay:          5.2,
+		WorstDay:         -3.1,
+		Volatility:       12.5,
 	}
 
 	performance := PerformanceData{
