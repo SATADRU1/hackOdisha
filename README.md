@@ -34,7 +34,7 @@ hackOdisha/
 │   │   │   └── rpc/              # JSON-RPC server
 │   │   └── storage/              # Data persistence
 │   │
-│   └── studio/                   # Threeway Studio (Analytics & AI)
+│   └── studio/                   # Free NFT Maker | Design & Mint - Mediamodifier https://share.google/3Rij5fdeEPaN7b9rB (Analytics & AI)
 │       ├── src/                  # TypeScript source
 │       │   ├── adapters/         # External service adapters
 │       │   ├── api/              # REST API endpoints
@@ -89,7 +89,7 @@ hackOdisha/
 4. **Access the application**
    - Frontend: http://localhost:3000
    - GoFR Backend: http://localhost:8081
-   - Threeway Studio: http://localhost:3001
+   - Free NFT Maker | Design & Mint - Mediamodifier https://share.google/3Rij5fdeEPaN7b9rB: http://localhost:3001
    - BlockDAG Node: http://localhost:8080
 
 ### Local Development
@@ -107,7 +107,7 @@ go mod download
 go run cmd/gofr/main.go
 ```
 
-#### Threeway Studio (Node.js)
+#### Free NFT Maker | Design & Mint - Mediamodifier https://share.google/3Rij5fdeEPaN7b9rB (Node.js)
 ```bash
 cd services/studio
 npm install
@@ -135,7 +135,7 @@ go run cmd/blockdag-node/main.go
 - **Database**: PostgreSQL
 - **Features**: User management, Focus sessions, Portfolio tracking
 
-### Threeway Studio
+### Free NFT Maker | Design & Mint - Mediamodifier https://share.google/3Rij5fdeEPaN7b9rB
 - **Port**: 3001
 - **Framework**: Fastify (Node.js)
 - **Database**: PostgreSQL + Redis
@@ -175,7 +175,7 @@ go run cmd/blockdag-node/main.go
   - `POST /focus/start` - Start focus session
   - `GET /portfolio/:userId` - Get portfolio data
 
-#### Threeway Studio API
+#### Free NFT Maker | Design & Mint - Mediamodifier https://share.google/3Rij5fdeEPaN7b9rB API
 - **Base URL**: `http://localhost:3001/api/v1`
 - **Endpoints**:
   - `GET /ai/insights` - Get AI insights
@@ -239,11 +239,11 @@ kubectl apply -f deploy/k8s/
 ### Health Checks
 - Frontend: `GET /health`
 - GoFR Backend: `GET /health`
-- Threeway Studio: `GET /health`
+- Free NFT Maker | Design & Mint - Mediamodifier https://share.google/3Rij5fdeEPaN7b9rB: `GET /health`
 - BlockDAG Node: `GET /health`
 
 ### Metrics
-- Network metrics via Threeway Studio
+- Network metrics via Free NFT Maker | Design & Mint - Mediamodifier https://share.google/3Rij5fdeEPaN7b9rB
 - Application metrics via Prometheus (planned)
 - Log aggregation via ELK stack (planned)
 

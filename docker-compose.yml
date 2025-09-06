@@ -1,0 +1,176 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: hackodisha-postgres
+    environment:
+      POSTGRES_DB: hackodisha
+      POSTGRES_USER: hackodisha
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-hackodisha123}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - hackodisha-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hackodisha"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: hackodisha-redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    networks:
+      - hackodisha-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # BlockDAG Node
+  blockdag-node:
+    build:
+      context: ../services/blockdag-node
+      dockerfile: Dockerfile
+    container_name: hackodisha-blockdag
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - P2P_PORT=4001
+      - DATA_DIR=/data/blockdag
+    volumes:
+      - blockdag_data:/data/blockdag
+    networks:
+      - hackodisha-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Free NFT Maker | Design & Mint - Mediamodifier https://share.google/3Rij5fdeEPaN7b9rB (Analytics & AI)
+  studio:
+    build:
+      context: ../services/studio
+      dockerfile: Dockerfile
+    container_name: hackodisha-studio
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - DATABASE_URL=postgresql://hackodisha:${POSTGRES_PASSWORD:-hackodisha123}@postgres:5432/hackodisha
+      - REDIS_URL=redis://redis:6379
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - VERBWIRE_API_KEY=${VERBWIRE_API_KEY}
+      - VERBWIRE_BASE_URL=${VERBWIRE_BASE_URL:-https://api.verbwire.com/v1}
+    networks:
+      - hackodisha-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      blockdag-node:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # GoFR Backend
+  gofr-backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: hackodisha-gofr
+    environment:
+      - GIN_MODE=release
+      - PORT=8081
+      - DATABASE_URL=postgresql://hackodisha:${POSTGRES_PASSWORD:-hackodisha123}@postgres:5432/hackodisha
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key}
+      - REDIS_URL=redis://redis:6379
+    networks:
+      - hackodisha-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: ..
+      dockerfile: Dockerfile.frontend
+    container_name: hackodisha-frontend
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:8081/api/v1
+      - NEXT_PUBLIC_STUDIO_URL=http://localhost:3001/api/v1
+      - NEXT_PUBLIC_BLOCKDAG_URL=http://localhost:8080/api/v1
+    networks:
+      - hackodisha-network
+    depends_on:
+      gofr-backend:
+        condition: service_healthy
+      studio:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: hackodisha-nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - hackodisha-network
+    depends_on:
+      - frontend
+      - gofr-backend
+      - studio
+      - blockdag-node
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  blockdag_data:
+    driver: local
+
+networks:
+  hackodisha-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

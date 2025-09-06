@@ -8,7 +8,7 @@
  * - RecommendOptimalCoinsOutput - The return type for the recommendOptimalCoins function.
  */
 
-import { gemini } from '@/ai/genkit';
+import { geminiPro } from '@/ai/genkit';
 import { z } from 'genkit';
 import { AIService, AIUtils } from '@/lib/ai-service';
 

@@ -1,5 +1,5 @@
 import ChartRenderer from '@/components/studio/ChartRenderer';
-import AITestPanel from '@/components/studio/AITestPanel';
+import { AITestPanel } from '@/components/studio/AITestPanel';
 
 export default function ChartsPage() {
   return (

@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Blackdag / Threeway Studio Charts API endpoints
+// Blackdag / Free NFT Maker | Design & Mint - Mediamodifier https://share.google/3Rij5fdeEPaN7b9rB Charts API endpoints
 export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);
         const type = searchParams.get('type');
         const timeframe = searchParams.get('timeframe') || '24h';
 
-        // TODO: Integrate with Blackdag/Threeway Studio APIs
+        // TODO: Integrate with Blackdag/Free NFT Maker | Design & Mint - Mediamodifier https://share.google/3Rij5fdeEPaN7b9rB APIs
         const mockChartData = {
             type,
             timeframe,

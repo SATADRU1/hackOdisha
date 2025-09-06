@@ -44,7 +44,7 @@ fastify.register(blockdagRoutes, { prefix: '/api/v1/blockdag' });
 fastify.get('/health', async (request, reply) => {
   return {
     status: 'healthy',
-    service: 'threeway-studio',
+    service: 'nft-maker-studio',
     timestamp: new Date().toISOString(),
     version: '1.0.0'
   };
@@ -138,7 +138,7 @@ const start = async () => {
     const host = process.env.HOST || '0.0.0.0';
     
     await fastify.listen({ port, host });
-    fastify.log.info(`Threeway Studio server listening on ${host}:${port}`);
+    fastify.log.info(`Free NFT Maker | Design & Mint - Mediamodifier https://share.google/3Rij5fdeEPaN7b9rB server listening on ${host}:${port}`);
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);

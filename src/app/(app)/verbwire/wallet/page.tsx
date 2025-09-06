@@ -35,7 +35,7 @@ export default function WalletPage() {
             currency: "ETH",
             to: "0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6",
             from: "0x9876543210fedcba9876543210fedcba98765432",
-            status: "confirmed",
+            status: "confirmed" as const,
             timestamp: new Date().toISOString(),
             fee: "0.001"
         },
@@ -47,7 +47,7 @@ export default function WalletPage() {
             currency: "BTC",
             to: "0x1111111111111111111111111111111111111111",
             from: "0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6",
-            status: "pending",
+            status: "pending" as const,
             timestamp: new Date(Date.now() - 3600000).toISOString(),
             fee: "0.0005"
         }

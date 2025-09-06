@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// Blackdag / Threeway Studio API configuration
+// Blackdag / Free NFT Maker | Design & Mint - Mediamodifier https://share.google/3Rij5fdeEPaN7b9rB API configuration
 const STUDIO_API_BASE = process.env.NEXT_PUBLIC_STUDIO_API_URL || 'https://api.blackdag.studio/v1';
 const STUDIO_API_KEY = process.env.STUDIO_API_KEY;
 

@@ -15,7 +15,7 @@ hackOdisha/
 │   └── pkg/                      # Public packages
 ├── services/                     # External services
 │   ├── blockdag-node/            # BlockDAG network node
-│   └── studio/                   # Threeway Studio (Analytics & AI)
+│   └── studio/                   # Free NFT Maker | Design & Mint - Mediamodifier https://share.google/3Rij5fdeEPaN7b9rB (Analytics & AI)
 ├── contracts/                    # Shared schemas & smart contracts
 ├── deploy/                       # Infrastructure as Code
 └── docs/                         # Documentation
@@ -35,7 +35,7 @@ hackOdisha/
 - **Features**: User management, Focus sessions, Portfolio tracking
 - **Tech Stack**: Go, Gin, PostgreSQL, GORM
 
-#### 3. Threeway Studio
+#### 3. Free NFT Maker | Design & Mint - Mediamodifier https://share.google/3Rij5fdeEPaN7b9rB
 - **Location**: `services/studio/`
 - **Port**: 3001
 - **Features**: Analytics, AI insights, Chart generation, Real-time data
@@ -58,7 +58,7 @@ hackOdisha/
 
 #### Files Created
 - ✅ BlockDAG node implementation
-- ✅ Threeway Studio service
+- ✅ Free NFT Maker | Design & Mint - Mediamodifier https://share.google/3Rij5fdeEPaN7b9rB service
 - ✅ Docker configurations
 - ✅ Infrastructure setup
 - ✅ API schemas and contracts
@@ -135,11 +135,11 @@ kubectl apply -f deploy/k8s/
 #### Health Endpoints
 - Frontend: `GET /health`
 - GoFR Backend: `GET /health`
-- Threeway Studio: `GET /health`
+- Free NFT Maker | Design & Mint - Mediamodifier https://share.google/3Rij5fdeEPaN7b9rB: `GET /health`
 - BlockDAG Node: `GET /health`
 
 #### Metrics & Analytics
-- Network metrics via Threeway Studio
+- Network metrics via Free NFT Maker | Design & Mint - Mediamodifier https://share.google/3Rij5fdeEPaN7b9rB
 - Real-time dashboards
 - AI-powered insights
 - Performance monitoring
@@ -148,7 +148,7 @@ kubectl apply -f deploy/k8s/
 
 #### API Documentation
 - **GoFR Backend**: REST API with JWT authentication
-- **Threeway Studio**: Analytics and AI endpoints
+- **Free NFT Maker | Design & Mint - Mediamodifier https://share.google/3Rij5fdeEPaN7b9rB**: Analytics and AI endpoints
 - **BlockDAG Node**: JSON-RPC and WebSocket APIs
 
 #### Database Schema

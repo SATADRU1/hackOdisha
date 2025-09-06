@@ -43,7 +43,7 @@ export function AITestPanel() {
 
             switch (testType) {
                 case 'analyze':
-                    response = await analyzeMarket(symbol, timeframe, undefined, mockData);
+                    response = await analyzeMarket(symbol, timeframe, undefined);
                     break;
                 case 'mining':
                     response = await getMiningRecommendations(mockData, {
@@ -246,3 +246,5 @@ export function AITestPanel() {
         </Card>
     );
 }
+
+export default AITestPanel;

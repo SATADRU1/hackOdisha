@@ -31,7 +31,7 @@ This document outlines the reorganized project structure that separates concerns
 │   │   │   ├── gofr/                 # Backend endpoints (proxy to Gofr)
 │   │   │   │   ├── auth.ts
 │   │   │   │   └── mining.ts
-│   │   │   └── studio/               # Blackdag / Threeway Studio APIs
+│   │   │   └── studio/               # Blackdag / Free NFT Maker | Design & Mint - Mediamodifier https://share.google/3Rij5fdeEPaN7b9rB APIs
 │   │   │       ├── charts.ts
 │   │   │       └── ai.ts
 │   │   │
@@ -57,7 +57,7 @@ This document outlines the reorganized project structure that separates concerns
 │   │   ├── gofr/                     # Gofr UI Components
 │   │   │   ├── GofrStatus.tsx
 │   │   │   └── MiningControl.tsx
-│   │   └── studio/                   # Blackdag / Threeway Studio components
+│   │   └── studio/                   # Blackdag / Free NFT Maker | Design & Mint - Mediamodifier https://share.google/3Rij5fdeEPaN7b9rB components
 │   │       ├── ChartRenderer.tsx
 │   │       └── AIInsights.tsx
 │   │
@@ -65,7 +65,7 @@ This document outlines the reorganized project structure that separates concerns
 │   │   ├── use-toast.ts
 │   │   ├── use-verbwire.ts           # Custom hook for Verbwire
 │   │   ├── use-gofr.ts               # Hook for Gofr backend calls
-│   │   └── use-studio.ts             # Hook for Blackdag/Threeway Studio
+│   │   └── use-studio.ts             # Hook for Blackdag/Free NFT Maker | Design & Mint - Mediamodifier https://share.google/3Rij5fdeEPaN7b9rB
 │   │
 │   ├── lib/
 │   │   ├── mock-data.ts
@@ -113,7 +113,7 @@ This document outlines the reorganized project structure that separates concerns
 - **Lib**: `/lib/gofr.ts` - Backend API configuration
 - **Backend**: `/backend/` - Complete Go backend with Gin framework
 
-### Studio (Blackdag/Threeway)
+### Studio (Blackdag/Free NFT Maker | Design & Mint - Mediamodifier https://share.google/3Rij5fdeEPaN7b9rB)
 - **Frontend Pages**: Charts and AI insights pages
 - **API Routes**: `/app/api/studio/` - Chart and AI analysis endpoints
 - **Components**: `/components/studio/` - Chart and AI components
@@ -163,7 +163,7 @@ VERBWIRE_API_KEY=your_verbwire_api_key_here
 NEXT_PUBLIC_GOFR_API_URL=http://localhost:8080/api/v1
 GOFR_API_KEY=your_gofr_api_key_here
 
-# Blackdag / Threeway Studio API Configuration
+# Blackdag / Free NFT Maker | Design & Mint - Mediamodifier https://share.google/3Rij5fdeEPaN7b9rB API Configuration
 NEXT_PUBLIC_STUDIO_API_URL=https://api.blackdag.studio/v1
 STUDIO_API_KEY=your_studio_api_key_here
 ```

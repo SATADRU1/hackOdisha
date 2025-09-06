@@ -1,4 +1,4 @@
-# Threeway Studio - Analytics & AI Service
+# Free NFT Maker | Design & Mint - Mediamodifier https://share.google/3Rij5fdeEPaN7b9rB - Analytics & AI Service
 
 A comprehensive analytics and AI service for the BlockDAG network, providing real-time insights, anomaly detection, and predictive analytics.
 
@@ -93,8 +93,8 @@ services/studio/
 2. **Or build individually**
    ```bash
    cd services/studio
-   docker build -t threeway-studio .
-   docker run -p 4002:4002 threeway-studio
+   docker build -t nft-maker-studio .
+   docker run -p 4002:4002 nft-maker-studio
    ```
 
 ## 📊 API Endpoints
@@ -218,13 +218,13 @@ The service uses PostgreSQL with Prisma ORM. Key models include:
 ### Docker Production
 
 ```bash
-docker build -t threeway-studio .
+docker build -t nft-maker-studio .
 docker run -d \
-  --name threeway-studio \
+  --name nft-maker-studio \
   -p 4002:4002 \
   -e DATABASE_URL=postgresql://user:pass@host:5432/studio \
   -e OPENAI_API_KEY=your-key \
-  threeway-studio
+  nft-maker-studio
 ```
 
 ## 🔍 Troubleshooting
@@ -250,10 +250,10 @@ docker run -d \
 
 ```bash
 # View logs
-docker logs threeway-studio
+docker logs nft-maker-studio
 
 # Follow logs
-docker logs -f threeway-studio
+docker logs -f nft-maker-studio
 ```
 
 ## 🤝 Contributing
