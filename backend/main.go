@@ -7,9 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/cors"
-	"hackodisha/backend/internal/auth"
-	"hackodisha/backend/internal/mining"
-	"hackodisha/backend/internal/portfolio"
+	"hackodisha/backend/internal/focus"
 )
 
 func main() {
@@ -23,7 +21,7 @@ func main() {
 
 	// CORS middleware
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000", "https://yourdomain.com"},
+		AllowOrigins:     []string{"http://localhost:3000", "http://localhost:8080"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -33,49 +31,27 @@ func main() {
 	// Health check endpoint
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"status": "healthy",
-			"service": "gofr-backend",
+			"status":  "healthy",
+			"service": "focusstake-backend",
 		})
 	})
 
 	// API v1 routes
 	v1 := r.Group("/api/v1")
 	{
-		// Authentication routes
-		authGroup := v1.Group("/auth")
-		{
-			authGroup.POST("/login", auth.Login)
-			authGroup.POST("/register", auth.Register)
-			authGroup.POST("/logout", auth.Logout)
-			authGroup.GET("/verify", auth.VerifyToken)
-			authGroup.POST("/refresh", auth.RefreshToken)
-			authGroup.GET("/profile", auth.GetProfile)
-			authGroup.PUT("/profile", auth.UpdateProfile)
-		}
+		// Dashboard route
+		v1.GET("/dashboard", GetDashboardData)
 
-		// Mining routes
-		miningGroup := v1.Group("/mining")
-		miningGroup.Use(auth.AuthMiddleware())
+		// Focus routes (no auth middleware for now)
+		focusGroup := v1.Group("/focus")
 		{
-			miningGroup.GET("/status/:userId", mining.GetStatus)
-			miningGroup.POST("/start", mining.StartMining)
-			miningGroup.POST("/stop", mining.StopMining)
-			miningGroup.PUT("/configure", mining.ConfigureMining)
-			miningGroup.GET("/stats/:userId", mining.GetStats)
-			miningGroup.GET("/history/:userId", mining.GetHistory)
-			miningGroup.GET("/earnings/:userId", mining.GetEarnings)
-			miningGroup.GET("/pool/info", mining.GetPoolInfo)
-		}
-
-		// Portfolio routes
-		portfolioGroup := v1.Group("/portfolio")
-		portfolioGroup.Use(auth.AuthMiddleware())
-		{
-			portfolioGroup.GET("/:userId", portfolio.GetPortfolio)
-			portfolioGroup.POST("/:userId/assets", portfolio.AddAsset)
-			portfolioGroup.PUT("/:userId/assets/:assetId", portfolio.UpdateAsset)
-			portfolioGroup.DELETE("/:userId/assets/:assetId", portfolio.RemoveAsset)
-			portfolioGroup.GET("/:userId/performance", portfolio.GetPerformance)
+			focusGroup.GET("/status/:userId", focus.GetStatus)
+			focusGroup.POST("/start", focus.StartFocusSession)
+			focusGroup.POST("/complete", focus.CompleteFocusSession)
+			focusGroup.PUT("/configure", focus.ConfigureFocus)
+			focusGroup.GET("/stats/:userId", focus.GetStats)
+			focusGroup.GET("/history/:userId", focus.GetHistory)
+			focusGroup.GET("/earnings/:userId", focus.GetEarnings)
 		}
 	}
 
@@ -85,6 +61,15 @@ func main() {
 		port = "8080"
 	}
 
-	log.Printf("Starting Gofr backend server on port %s", port)
+	log.Printf("Starting FocusStake backend server on port %s", port)
 	log.Fatal(http.ListenAndServe(":"+port, r))
+}
+
+// GetDashboardData returns dashboard data
+func GetDashboardData(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"message": "FocusStake Dashboard API",
+		"version": "1.0.0",
+		"status":  "active",
+	})
 }

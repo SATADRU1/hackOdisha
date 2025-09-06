@@ -103,50 +103,56 @@ export const authApi = {
     }
 };
 
-// Mining API functions
-export const miningApi = {
-    // Get mining status
+// Focus API functions
+export const focusApi = {
+    // Get focus status
     getStatus: async (userId: string) => {
-        const response = await gofrApi.get(`/mining/status/${userId}`);
+        const response = await gofrApi.get(`/focus/status/${userId}`);
         return response.data;
     },
 
-    // Start mining
-    startMining: async (config?: any) => {
-        const response = await gofrApi.post('/mining/start', config);
+    // Start focus session
+    startFocusSession: async (duration: number, stakeAmount: number) => {
+        const response = await gofrApi.post('/focus/start', {
+            duration,
+            stakeAmount
+        });
         return response.data;
     },
 
-    // Stop mining
-    stopMining: async () => {
-        const response = await gofrApi.post('/mining/stop');
+    // Complete focus session
+    completeFocusSession: async (sessionId: number, isSuccess: boolean) => {
+        const response = await gofrApi.post('/focus/complete', {
+            sessionId,
+            isSuccess
+        });
         return response.data;
     },
 
-    // Configure mining
-    configureMining: async (config: {
-        pool: string;
-        algorithm: string;
-        intensity: number;
-        autoStart: boolean;
-        temperatureLimit: number;
-        powerLimit: number;
+    // Configure focus settings
+    configureFocus: async (config: {
+        defaultDuration: number;
+        defaultStake: number;
+        blockedWebsites: string[];
+        notificationSound: boolean;
+        autoStartBreak: boolean;
+        breakDuration: number;
     }) => {
-        const response = await gofrApi.put('/mining/configure', config);
+        const response = await gofrApi.put('/focus/configure', config);
         return response.data;
     },
 
-    // Get mining statistics
+    // Get focus statistics
     getStats: async (userId: string, timeframe: string = '24h') => {
-        const response = await gofrApi.get(`/mining/stats/${userId}`, {
+        const response = await gofrApi.get(`/focus/stats/${userId}`, {
             params: { timeframe }
         });
         return response.data;
     },
 
-    // Get mining history
+    // Get focus history
     getHistory: async (userId: string, limit: number = 100, offset: number = 0) => {
-        const response = await gofrApi.get(`/mining/history/${userId}`, {
+        const response = await gofrApi.get(`/focus/history/${userId}`, {
             params: { limit, offset }
         });
         return response.data;
@@ -154,16 +160,8 @@ export const miningApi = {
 
     // Get earnings
     getEarnings: async (userId: string, period: string = 'all') => {
-        const response = await gofrApi.get(`/mining/earnings/${userId}`, {
+        const response = await gofrApi.get(`/focus/earnings/${userId}`, {
             params: { period }
-        });
-        return response.data;
-    },
-
-    // Get pool information
-    getPoolInfo: async (poolUrl: string) => {
-        const response = await gofrApi.get('/mining/pool/info', {
-            params: { url: poolUrl }
         });
         return response.data;
     }
@@ -210,81 +208,78 @@ export const portfolioApi = {
 };
 
 // Utility functions
-export const gofrUtils = {
-    // Format hashrate for display
-    formatHashrate: (hashrate: number) => {
-        const units = ['H/s', 'KH/s', 'MH/s', 'GH/s', 'TH/s', 'PH/s'];
-        let unitIndex = 0;
-        let value = hashrate;
-
-        while (value >= 1000 && unitIndex < units.length - 1) {
-            value /= 1000;
-            unitIndex++;
-        }
-
-        return `${value.toFixed(2)} ${units[unitIndex]}`;
-    },
-
-    // Format power consumption
-    formatPower: (watts: number) => {
-        if (watts >= 1000) {
-            return `${(watts / 1000).toFixed(2)} kW`;
-        }
-        return `${watts.toFixed(0)} W`;
-    },
-
-    // Format temperature
-    formatTemperature: (celsius: number) => {
-        return `${celsius.toFixed(1)}°C`;
-    },
-
-    // Format uptime
-    formatUptime: (seconds: number) => {
-        const days = Math.floor(seconds / 86400);
-        const hours = Math.floor((seconds % 86400) / 3600);
-        const minutes = Math.floor((seconds % 3600) / 60);
-
-        if (days > 0) {
-            return `${days}d ${hours}h ${minutes}m`;
-        } else if (hours > 0) {
-            return `${hours}h ${minutes}m`;
-        } else {
-            return `${minutes}m`;
-        }
-    },
-
-    // Calculate mining profitability
-    calculateProfitability: (hashrate: number, powerConsumption: number, electricityCost: number) => {
-        const dailyPowerCost = (powerConsumption / 1000) * 24 * electricityCost;
-        // This would need real mining profitability data
-        const estimatedDailyRevenue = hashrate * 0.0001; // Placeholder calculation
-        const dailyProfit = estimatedDailyRevenue - dailyPowerCost;
+export const focusUtils = {
+    // Format duration for display
+    formatDuration: (minutes: number) => {
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
         
-        return {
-            dailyRevenue: estimatedDailyRevenue,
-            dailyPowerCost,
-            dailyProfit,
-            roi: dailyProfit / dailyPowerCost * 100
-        };
+        if (hours > 0) {
+            return `${hours}h ${mins}m`;
+        }
+        return `${mins}m`;
     },
 
-    // Validate pool URL
-    isValidPoolUrl: (url: string) => {
-        const poolRegex = /^stratum\+tcp:\/\/[a-zA-Z0-9.-]+:\d+$/;
-        return poolRegex.test(url);
+    // Format time remaining
+    formatTimeRemaining: (seconds: number) => {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const secs = seconds % 60;
+
+        if (hours > 0) {
+            return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        } else {
+            return `${minutes}:${secs.toString().padStart(2, '0')}`;
+        }
     },
 
-    // Get algorithm display name
-    getAlgorithmName: (algorithm: string) => {
-        const algorithms: { [key: string]: string } = {
-            'sha256': 'SHA-256 (Bitcoin)',
-            'scrypt': 'Scrypt (Litecoin)',
-            'ethash': 'Ethash (Ethereum)',
-            'equihash': 'Equihash (Zcash)',
-            'x11': 'X11 (Dash)',
-            'lyra2z': 'Lyra2Z (Zcoin)'
-        };
-        return algorithms[algorithm] || algorithm;
+    // Format stake amount
+    formatStake: (amount: number, currency: string = 'ETH') => {
+        return `${amount.toFixed(4)} ${currency}`;
+    },
+
+    // Format reward amount
+    formatReward: (amount: number, currency: string = 'ETH') => {
+        return `${amount.toFixed(4)} ${currency}`;
+    },
+
+    // Calculate success rate
+    calculateSuccessRate: (completed: number, total: number) => {
+        if (total === 0) return 0;
+        return (completed / total) * 100;
+    },
+
+    // Calculate ROI
+    calculateROI: (earned: number, staked: number) => {
+        if (staked === 0) return 0;
+        return ((earned - staked) / staked) * 100;
+    },
+
+    // Validate stake amount
+    isValidStakeAmount: (amount: number) => {
+        return amount >= 0.001 && amount <= 10.0;
+    },
+
+    // Validate session duration
+    isValidDuration: (minutes: number) => {
+        return minutes >= 5 && minutes <= 120;
+    },
+
+    // Get session type display name
+    getSessionTypeName: (duration: number) => {
+        if (duration <= 15) return 'Quick Focus';
+        if (duration <= 25) return 'Pomodoro';
+        if (duration <= 45) return 'Deep Work';
+        return 'Extended Focus';
+    },
+
+    // Calculate streak bonus
+    calculateStreakBonus: (streak: number) => {
+        if (streak < 3) return 0;
+        if (streak < 7) return 0.05; // 5% bonus
+        if (streak < 14) return 0.1; // 10% bonus
+        if (streak < 30) return 0.15; // 15% bonus
+        return 0.2; // 20% bonus for 30+ day streak
     }
 };
 
