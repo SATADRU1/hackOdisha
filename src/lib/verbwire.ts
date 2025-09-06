@@ -8,7 +8,8 @@ const VERBWIRE_API_KEY = process.env.VERBWIRE_API_KEY;
 export const verbwireApi = axios.create({
     baseURL: VERBWIRE_API_BASE,
     headers: {
-        'Authorization': `Bearer ${VERBWIRE_API_KEY}`,
+        // Correct header for Verbwire API is 'X-API-Key'
+        'X-API-Key': VERBWIRE_API_KEY,
         'Content-Type': 'application/json',
     },
     timeout: 10000,
@@ -41,14 +42,14 @@ verbwireApi.interceptors.response.use(
 // Wallet API functions
 export const walletApi = {
     // Get wallet information
-    getWallet: async (address: string) => {
-        const response = await verbwireApi.get(`/wallets/${address}`);
+    getWallet: async (walletAddress: string) => {
+        const response = await verbwireApi.get(`/wallet/balance`, { params: { walletAddress } });
         return response.data;
     },
 
     // Create new wallet
     createWallet: async () => {
-        const response = await verbwireApi.post('/wallets');
+        const response = await verbwireApi.post('/wallet/create');
         return response.data;
     },
 
@@ -61,8 +62,8 @@ export const walletApi = {
     },
 
     // Transfer funds
-    transfer: async (from: string, to: string, amount: string, currency: string) => {
-        const response = await verbwireApi.post('/wallets/transfer', {
+    transfer: async (from: string, to: string, amount: number, currency: string) => {
+        const response = await verbwireApi.post('/transaction/send', {
             from,
             to,
             amount,
@@ -72,8 +73,8 @@ export const walletApi = {
     },
 
     // Get transaction history
-    getTransactions: async (address: string, limit: number = 50, offset: number = 0) => {
-        const response = await verbwireApi.get(`/wallets/${address}/transactions`, {
+    getTransactions: async (walletAddress: string, limit: number = 50, offset: number = 0) => {
+        const response = await verbwireApi.get(`/data/transactions`, {
             params: { limit, offset }
         });
         return response.data;
@@ -83,11 +84,11 @@ export const walletApi = {
 // NFT API functions
 export const nftApi = {
     // Get NFTs by owner
-    getNFTsByOwner: async (owner: string, collection?: string) => {
-        const params: any = { owner };
+    getNFTsByOwner: async (walletAddress: string, collection?: string) => {
+        const params: any = { walletAddress };
         if (collection) params.collection = collection;
         
-        const response = await verbwireApi.get('/nfts', { params });
+        const response = await verbwireApi.get('/data/nfts/user', { params });
         return response.data;
     },
 
@@ -99,7 +100,7 @@ export const nftApi = {
 
     // Mint NFT
     mint: async (contractAddress: string, to: string, tokenURI: string) => {
-        const response = await verbwireApi.post('/nfts/mint', {
+        const response = await verbwireApi.post('/nft/mint', {
             contractAddress,
             to,
             tokenURI
@@ -109,7 +110,7 @@ export const nftApi = {
 
     // Transfer NFT
     transfer: async (contractAddress: string, tokenId: string, from: string, to: string) => {
-        const response = await verbwireApi.post('/nfts/transfer', {
+        const response = await verbwireApi.post('/nft/transfer', {
             contractAddress,
             tokenId,
             from,
@@ -120,7 +121,7 @@ export const nftApi = {
 
     // List NFT for sale
     listForSale: async (contractAddress: string, tokenId: string, price: string, currency: string) => {
-        const response = await verbwireApi.post('/nfts/list', {
+        const response = await verbwireApi.post('/nft/list', {
             contractAddress,
             tokenId,
             price,
@@ -131,7 +132,7 @@ export const nftApi = {
 
     // Buy NFT
     buy: async (contractAddress: string, tokenId: string, buyer: string) => {
-        const response = await verbwireApi.post('/nfts/buy', {
+        const response = await verbwireApi.post('/nft/buy', {
             contractAddress,
             tokenId,
             buyer
@@ -143,8 +144,8 @@ export const nftApi = {
 // Payment API functions
 export const paymentApi = {
     // Send payment
-    sendPayment: async (from: string, to: string, amount: string, currency: string, memo?: string) => {
-        const response = await verbwireApi.post('/payments/send', {
+    sendPayment: async (from: string, to: string, amount: number, currency: string, memo?: string) => {
+        const response = await verbwireApi.post('/payments/create', {
             from,
             to,
             amount,
@@ -155,8 +156,8 @@ export const paymentApi = {
     },
 
     // Request payment
-    requestPayment: async (from: string, amount: string, currency: string, memo?: string) => {
-        const response = await verbwireApi.post('/payments/request', {
+    requestPayment: async (from: string, amount: number, currency: string, memo?: string) => {
+        const response = await verbwireApi.post('/payments/create-request', {
             from,
             amount,
             currency,
@@ -166,16 +167,16 @@ export const paymentApi = {
     },
 
     // Get payment history
-    getPayments: async (wallet: string, limit: number = 50, offset: number = 0) => {
-        const response = await verbwireApi.get(`/payments/${wallet}`, {
+    getPayments: async (walletAddress: string, limit: number = 50, offset: number = 0) => {
+        const response = await verbwireApi.get(`/data/payments`, {
             params: { limit, offset }
         });
         return response.data;
     },
 
     // Get payment status
-    getPaymentStatus: async (paymentId: string) => {
-        const response = await verbwireApi.get(`/payments/status/${paymentId}`);
+    getPaymentStatus: async (paymentID: string) => {
+        const response = await verbwireApi.get(`/payments/status/${paymentID}`);
         return response.data;
     }
 };
