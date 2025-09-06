@@ -261,5 +261,7 @@ export function FocusStatus({ userId, focusData, onStartSession, onStopSession }
                 </CardContent>
             </Card>
         </div>
-    );
+    )
 }
+
+export default FocusStatus;

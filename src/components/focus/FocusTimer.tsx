@@ -398,10 +398,11 @@ export function FocusTimer({ onSessionStart, onSessionComplete, onSessionUpdate 
                                     Stop Session
                                 </Button>
                             </>
-                        )}
                     </div>
                 </CardContent>
             </Card>
         </div>
     );
 }
+
+export default FocusTimer;
