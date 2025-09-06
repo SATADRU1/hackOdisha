@@ -1,5 +1,7 @@
-import FocusTimer from '@/components/focus/FocusTimer';
-import FocusStatus from '@/components/focus/FocusStatus';
+'use client';
+
+import { FocusTimer } from '@/components/focus/FocusTimer';
+import { FocusStatus } from '@/components/focus/FocusStatus';
 import { useGofr } from '@/hooks/use-gofr';
 import { useEffect } from 'react';
 
@@ -18,7 +20,19 @@ export default function FocusPage() {
         <FocusTimer />
       </div>
       <div className="lg:col-span-1">
-        <FocusStatus userId={user?.id || ''} focusData={focusData} />
+        <FocusStatus 
+          userId={user?.id || ''} 
+          focusData={focusData || {
+            userId: user?.id || '',
+            status: 'idle',
+            totalSessions: 0,
+            completedSessions: 0,
+            totalStaked: 0,
+            totalEarned: 0,
+            streak: 0,
+            lastUpdated: new Date().toISOString()
+          }} 
+        />
       </div>
     </div>
   );

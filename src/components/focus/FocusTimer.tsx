@@ -1,4 +1,4 @@
-cd 'use client';
+'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
