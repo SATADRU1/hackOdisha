@@ -1,4 +1,4 @@
-import { gemini, geminiPro, geminiFlash } from '@/ai/genkit';
+import { ai, geminiPro, geminiFlash } from '@/ai/genkit';
 
 // AI Service for cryptocurrency analysis using only Gemini
 export class AIService {
@@ -40,7 +40,8 @@ export class AIService {
         }
       `;
 
-      const response = await gemini.generate({
+      const response = await ai.generate({
+        model: geminiPro,
         prompt,
         config: {
           temperature: 0.3,
@@ -48,7 +49,7 @@ export class AIService {
         },
       });
 
-      return JSON.parse(response.text());
+      return JSON.parse(response.text);
     } catch (error) {
       console.error('Gemini analysis error:', error);
       throw new Error('Failed to analyze market with Gemini');
@@ -87,7 +88,8 @@ export class AIService {
         }
       `;
 
-      const response = await geminiPro.generate({
+      const response = await ai.generate({
+        model: geminiPro,
         prompt,
         config: {
           temperature: 0.4,
@@ -95,7 +97,7 @@ export class AIService {
         },
       });
 
-      return JSON.parse(response.text());
+      return JSON.parse(response.text);
     } catch (error) {
       console.error('Gemini mining recommendations error:', error);
       throw new Error('Failed to get mining recommendations');
@@ -126,7 +128,8 @@ export class AIService {
         }
       `;
 
-      const response = await geminiFlash.generate({
+      const response = await ai.generate({
+        model: geminiFlash,
         prompt,
         config: {
           temperature: 0.2,
@@ -134,7 +137,7 @@ export class AIService {
         },
       });
 
-      return JSON.parse(response.text());
+      return JSON.parse(response.text);
     } catch (error) {
       console.error('Gemini price prediction error:', error);
       throw new Error('Failed to predict prices');
@@ -163,7 +166,8 @@ export class AIService {
         }
       `;
 
-      const response = await gemini.generate({
+      const response = await ai.generate({
+        model: geminiPro,
         prompt,
         config: {
           temperature: 0.3,
@@ -171,7 +175,7 @@ export class AIService {
         },
       });
 
-      return JSON.parse(response.text());
+      return JSON.parse(response.text);
     } catch (error) {
       console.error('Gemini market insights error:', error);
       throw new Error('Failed to get market insights');
@@ -222,7 +226,8 @@ export class AIService {
         }
       `;
 
-      const response = await geminiPro.generate({
+      const response = await ai.generate({
+        model: geminiPro,
         prompt,
         config: {
           temperature: 0.3,
@@ -230,7 +235,7 @@ export class AIService {
         },
       });
 
-      return JSON.parse(response.text());
+      return JSON.parse(response.text);
     } catch (error) {
       console.error('Gemini portfolio analysis error:', error);
       throw new Error('Failed to analyze portfolio');
@@ -270,7 +275,8 @@ export class AIService {
         }
       `;
 
-      const response = await geminiFlash.generate({
+      const response = await ai.generate({
+        model: geminiFlash,
         prompt,
         config: {
           temperature: 0.2,
@@ -278,7 +284,7 @@ export class AIService {
         },
       });
 
-      return JSON.parse(response.text());
+      return JSON.parse(response.text);
     } catch (error) {
       console.error('Gemini trading signals error:', error);
       throw new Error('Failed to generate trading signals');

@@ -7,7 +7,6 @@ export const ai = genkit({
   plugins: [
     googleAI(), // Genkit automatically uses GOOGLE_AI_API_KEY from process.env
   ],
-  enableTracingAndMetrics: true,
 });
 
 // Export individual model instances for specific use cases
