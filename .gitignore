@@ -10,6 +10,11 @@
 !.yarn/releases
 !.yarn/versions
 
+# Focus Stake Contract
+focus-stake-contract/node_modules/
+focus-stake-contract/cache/
+focus-stake-contract/artifacts/
+
 # testing
 /coverage
 
