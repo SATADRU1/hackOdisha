@@ -1,11 +1,10 @@
-
 'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
-  Pickaxe,
+  Target,
   AreaChart,
   Wallet,
   Gem,
@@ -28,7 +27,7 @@ import {
 
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/mining', icon: Pickaxe, label: 'Mining' },
+  { href: '/mining', icon: Target, label: 'Focus Sessions' },
   { href: '/portfolio', icon: FolderOpenDot, label: 'Portfolio' },
   { href: '/analytics', icon: AreaChart, label: 'Analytics' },
   { href: '/pricing', icon: Gem, label: 'Pricing' },
@@ -108,9 +107,9 @@ export default function MainSidebar() {
             isCollapsed ? 'justify-center' : ''
           )}
         >
-          <Pickaxe className="h-8 w-8 text-primary" />
+          <Target className="h-8 w-8 text-primary" />
           {!isCollapsed && (
-            <h1 className="text-2xl font-bold text-primary">MineR</h1>
+            <h1 className="text-2xl font-bold text-primary">FocusStake</h1>
           )}
         </div>
         <nav className={cn('flex flex-col gap-2', isCollapsed ? 'items-center' : 'px-2')}>

@@ -1,4 +1,4 @@
-'use client';
+cd 'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -101,23 +101,34 @@ export function FocusTimer({ onSessionStart, onSessionComplete, onSessionUpdate 
 
     const handleStartSession = async () => {
         try {
-            // Here you would call the API to start a focus session
-            // const response = await startFocusSession(duration, stakeAmount);
-            // setSessionId(response.sessionId);
-            
-            // Mock session start for now
-            const mockSessionId = Math.floor(Math.random() * 1000);
-            setSessionId(mockSessionId);
-            setIsActive(true);
-            setIsPaused(false);
-            setDistractionCount(0);
-            
-            onSessionStart?.(mockSessionId);
-            
-            toast({
-                title: "Focus Session Started",
-                description: `Staked ${focusUtils.formatStake(stakeAmount)} for ${focusUtils.formatDuration(duration)}`,
+            // Call the API to start a focus session
+            const response = await fetch('/api/gofr/focus', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'start',
+                    duration,
+                    stakeAmount
+                })
             });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                setSessionId(data.sessionId);
+                setIsActive(true);
+                setIsPaused(false);
+                setDistractionCount(0);
+                
+                onSessionStart?.(data.sessionId);
+                
+                toast({
+                    title: "Focus Session Started",
+                    description: `Staked ${focusUtils.formatStake(stakeAmount)} for ${focusUtils.formatDuration(duration)}`,
+                });
+            } else {
+                throw new Error(data.error || 'Failed to start session');
+            }
         } catch (error) {
             toast({
                 title: "Error",
@@ -148,22 +159,36 @@ export function FocusTimer({ onSessionStart, onSessionComplete, onSessionUpdate 
         }
 
         try {
-            // Here you would call the API to complete the session
-            // if (sessionId) {
-            //     await completeFocusSession(sessionId, isSuccess);
-            // }
-            
-            onSessionComplete?.(isSuccess);
-            
-            const message = isSuccess 
-                ? `Session completed successfully! You earned ${focusUtils.formatReward(stakeAmount * 1.1)}`
-                : `Session failed. Your stake of ${focusUtils.formatStake(stakeAmount)} was forfeited.`;
+            // Call the API to complete the session
+            if (sessionId) {
+                const response = await fetch('/api/gofr/focus', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'complete',
+                        sessionId,
+                        isSuccess
+                    })
+                });
                 
-            toast({
-                title: isSuccess ? "Session Completed!" : "Session Failed",
-                description: message,
-                variant: isSuccess ? "default" : "destructive",
-            });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    onSessionComplete?.(isSuccess);
+                    
+                    const message = isSuccess 
+                        ? `Session completed successfully! You earned ${focusUtils.formatReward(data.reward || stakeAmount * 1.1)}`
+                        : `Session failed. Your stake of ${focusUtils.formatStake(stakeAmount)} was forfeited.`;
+                        
+                    toast({
+                        title: isSuccess ? "Session Completed!" : "Session Failed",
+                        description: message,
+                        variant: isSuccess ? "default" : "destructive",
+                    });
+                } else {
+                    throw new Error(data.error || 'Failed to complete session');
+                }
+            }
         } catch (error) {
             toast({
                 title: "Error",

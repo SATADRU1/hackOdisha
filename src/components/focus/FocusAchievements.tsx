@@ -1,231 +1,81 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Award, Trophy, Star, Crown, Zap, Target, Clock, Coins } from "lucide-react";
-import { useVerbwire } from "@/hooks/use-verbwire";
-import { useToast } from "@/hooks/use-toast";
-
-interface Achievement {
-    id: string;
-    name: string;
-    description: string;
-    icon: string;
-    requirement: number;
-    current: number;
-    unlocked: boolean;
-    rarity: 'common' | 'rare' | 'epic' | 'legendary';
-    reward: {
-        type: 'nft' | 'bonus';
-        value: string;
-    };
-}
+import { Award, Trophy, Star, Crown, Gem, Zap } from "lucide-react";
 
 interface FocusAchievementsProps {
     userId: string;
-    focusStats: {
-        streak: number;
-        totalSessions: number;
-        completedSessions: number;
-        totalStaked: number;
-        totalEarned: number;
-    };
 }
 
-export function FocusAchievements({ userId, focusStats }: FocusAchievementsProps) {
-    const [achievements, setAchievements] = useState<Achievement[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const { mintNFT } = useVerbwire();
-    const { toast } = useToast();
-
-    // Define achievement templates
-    const achievementTemplates: Omit<Achievement, 'current' | 'unlocked'>[] = [
+export function FocusAchievements({ userId }: FocusAchievementsProps) {
+    // Mock achievements data - in production, this would come from the API
+    const achievements = [
         {
             id: 'first_session',
-            name: 'First Steps',
+            title: 'First Focus',
             description: 'Complete your first focus session',
-            icon: '🎯',
-            requirement: 1,
-            rarity: 'common',
-            reward: { type: 'nft', value: 'First Focus Badge' }
+            icon: Star,
+            unlocked: true,
+            unlockedAt: '2024-01-15',
+            rarity: 'common'
         },
         {
             id: 'streak_3',
-            name: 'Fire Starter',
-            description: 'Maintain a 3-day focus streak',
-            icon: '🔥',
-            requirement: 3,
-            rarity: 'common',
-            reward: { type: 'nft', value: '3-Day Streak Badge' }
+            title: '3-Day Streak',
+            description: 'Maintain focus for 3 consecutive days',
+            icon: Zap,
+            unlocked: true,
+            unlockedAt: '2024-01-18',
+            rarity: 'uncommon'
         },
         {
             id: 'streak_7',
-            name: 'Week Warrior',
-            description: 'Maintain a 7-day focus streak',
-            icon: '⚡',
-            requirement: 7,
-            rarity: 'rare',
-            reward: { type: 'nft', value: '7-Day Streak Badge' }
+            title: 'Week Warrior',
+            description: 'Maintain focus for 7 consecutive days',
+            icon: Trophy,
+            unlocked: true,
+            unlockedAt: '2024-01-25',
+            rarity: 'rare'
         },
         {
             id: 'streak_30',
-            name: 'Focus Master',
-            description: 'Maintain a 30-day focus streak',
-            icon: '👑',
-            requirement: 30,
-            rarity: 'legendary',
-            reward: { type: 'nft', value: '30-Day Streak Badge' }
-        },
-        {
-            id: 'sessions_10',
-            name: 'Dedicated',
-            description: 'Complete 10 focus sessions',
-            icon: '💎',
-            requirement: 10,
-            rarity: 'common',
-            reward: { type: 'nft', value: '10 Sessions Badge' }
-        },
-        {
-            id: 'sessions_50',
-            name: 'Focused',
-            description: 'Complete 50 focus sessions',
-            icon: '🏆',
-            requirement: 50,
-            rarity: 'rare',
-            reward: { type: 'nft', value: '50 Sessions Badge' }
+            title: 'Focus Master',
+            description: 'Maintain focus for 30 consecutive days',
+            icon: Crown,
+            unlocked: false,
+            unlockedAt: null,
+            rarity: 'epic'
         },
         {
             id: 'sessions_100',
-            name: 'Elite Focuser',
+            title: 'Centurion',
             description: 'Complete 100 focus sessions',
-            icon: '🌟',
-            requirement: 100,
-            rarity: 'epic',
-            reward: { type: 'nft', value: '100 Sessions Badge' }
+            icon: Award,
+            unlocked: false,
+            unlockedAt: null,
+            rarity: 'legendary'
         },
         {
-            id: 'earnings_1',
-            name: 'Earned It',
+            id: 'earnings_1_eth',
+            title: 'ETH Earner',
             description: 'Earn 1 ETH from focus sessions',
-            icon: '💰',
-            requirement: 1,
-            rarity: 'rare',
-            reward: { type: 'nft', value: '1 ETH Earner Badge' }
-        },
-        {
-            id: 'perfect_week',
-            name: 'Perfect Week',
-            description: 'Complete 7 sessions in a week with 100% success rate',
-            icon: '🎖️',
-            requirement: 7,
-            rarity: 'epic',
-            reward: { type: 'nft', value: 'Perfect Week Badge' }
+            icon: Gem,
+            unlocked: false,
+            unlockedAt: null,
+            rarity: 'mythic'
         }
     ];
 
-    useEffect(() => {
-        // Calculate current progress for each achievement
-        const updatedAchievements = achievementTemplates.map(achievement => {
-            let current = 0;
-            
-            switch (achievement.id) {
-                case 'first_session':
-                case 'sessions_10':
-                case 'sessions_50':
-                case 'sessions_100':
-                    current = focusStats.completedSessions;
-                    break;
-                case 'streak_3':
-                case 'streak_7':
-                case 'streak_30':
-                    current = focusStats.streak;
-                    break;
-                case 'earnings_1':
-                    current = focusStats.totalEarned;
-                    break;
-                case 'perfect_week':
-                    // This would need more complex logic to track weekly perfect sessions
-                    current = Math.min(focusStats.streak, 7);
-                    break;
-            }
-            
-            return {
-                ...achievement,
-                current,
-                unlocked: current >= achievement.requirement
-            };
-        });
-        
-        setAchievements(updatedAchievements);
-    }, [focusStats]);
-
-    const handleMintAchievement = async (achievement: Achievement) => {
-        if (!achievement.unlocked) return;
-        
-        setIsLoading(true);
-        try {
-            // Create NFT metadata
-            const metadata = {
-                name: achievement.reward.value,
-                description: `FocusStake Achievement: ${achievement.description}`,
-                image: `data:image/svg+xml;base64,${btoa(`
-                    <svg width="400" height="400" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="400" height="400" fill="#1a1a1a"/>
-                        <text x="200" y="200" font-size="80" text-anchor="middle" fill="white">${achievement.icon}</text>
-                        <text x="200" y="250" font-size="20" text-anchor="middle" fill="white">${achievement.name}</text>
-                        <text x="200" y="280" font-size="14" text-anchor="middle" fill="#888">${achievement.description}</text>
-                    </svg>
-                `)}`,
-                attributes: [
-                    { trait_type: "Rarity", value: achievement.rarity },
-                    { trait_type: "Type", value: "Focus Achievement" },
-                    { trait_type: "Requirement", value: achievement.requirement.toString() }
-                ]
-            };
-
-            // Mint NFT using Verbwire
-            await mintNFT(
-                achievement.reward.value,
-                achievement.description,
-                metadata.image
-            );
-
-            toast({
-                title: "Achievement Minted!",
-                description: `You've successfully minted the ${achievement.reward.value} NFT!`,
-            });
-        } catch (error) {
-            console.error('Failed to mint achievement NFT:', error);
-            toast({
-                title: "Error",
-                description: "Failed to mint achievement NFT",
-                variant: "destructive",
-            });
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
     const getRarityColor = (rarity: string) => {
         switch (rarity) {
-            case 'common': return 'bg-gray-500';
-            case 'rare': return 'bg-blue-500';
-            case 'epic': return 'bg-purple-500';
-            case 'legendary': return 'bg-yellow-500';
-            default: return 'bg-gray-500';
-        }
-    };
-
-    const getRarityTextColor = (rarity: string) => {
-        switch (rarity) {
-            case 'common': return 'text-gray-500';
-            case 'rare': return 'text-blue-500';
-            case 'epic': return 'text-purple-500';
-            case 'legendary': return 'text-yellow-500';
-            default: return 'text-gray-500';
+            case 'common': return 'bg-gray-100 text-gray-800 border-gray-200';
+            case 'uncommon': return 'bg-green-100 text-green-800 border-green-200';
+            case 'rare': return 'bg-blue-100 text-blue-800 border-blue-200';
+            case 'epic': return 'bg-purple-100 text-purple-800 border-purple-200';
+            case 'legendary': return 'bg-orange-100 text-orange-800 border-orange-200';
+            case 'mythic': return 'bg-pink-100 text-pink-800 border-pink-200';
+            default: return 'bg-gray-100 text-gray-800 border-gray-200';
         }
     };
 
@@ -233,124 +83,103 @@ export function FocusAchievements({ userId, focusStats }: FocusAchievementsProps
     const lockedAchievements = achievements.filter(a => !a.unlocked);
 
     return (
-        <div className="space-y-6">
-            {/* Achievement Overview */}
-            <Card className="bg-card/50 backdrop-blur-lg border-primary/20">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Trophy className="h-6 w-6" />
-                        Achievement Progress
-                    </CardTitle>
-                    <CardDescription>Track your focus milestones and unlock rewards</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="text-center">
-                            <div className="text-3xl font-bold text-primary">
-                                {unlockedAchievements.length}
-                            </div>
-                            <div className="text-sm text-muted-foreground">Unlocked</div>
+        <Card className="bg-card/50 backdrop-blur-lg border-border/50">
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                    <Award className="h-6 w-6" />
+                    Achievements
+                </CardTitle>
+                <CardDescription>
+                    Your focus milestones and NFT badges
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+                {/* Progress Summary */}
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center">
+                        <div className="text-2xl font-bold text-primary">
+                            {unlockedAchievements.length}
                         </div>
-                        <div className="text-center">
-                            <div className="text-3xl font-bold text-primary">
-                                {achievements.length - unlockedAchievements.length}
-                            </div>
-                            <div className="text-sm text-muted-foreground">Locked</div>
-                        </div>
-                        <div className="text-center">
-                            <div className="text-3xl font-bold text-primary">
-                                {Math.round((unlockedAchievements.length / achievements.length) * 100)}%
-                            </div>
-                            <div className="text-sm text-muted-foreground">Complete</div>
-                        </div>
+                        <div className="text-sm text-muted-foreground">Unlocked</div>
                     </div>
-                </CardContent>
-            </Card>
+                    <div className="text-center">
+                        <div className="text-2xl font-bold text-muted-foreground">
+                            {lockedAchievements.length}
+                        </div>
+                        <div className="text-sm text-muted-foreground">Locked</div>
+                    </div>
+                </div>
 
-            {/* Unlocked Achievements */}
-            {unlockedAchievements.length > 0 && (
-                <Card className="bg-card/50 backdrop-blur-lg border-green-500/20">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <Star className="h-6 w-6 text-green-500" />
-                            Unlocked Achievements
-                        </CardTitle>
-                        <CardDescription>Your completed focus milestones</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {unlockedAchievements.map((achievement) => (
-                                <div
-                                    key={achievement.id}
-                                    className="p-4 rounded-lg border border-green-500/20 bg-green-500/5"
-                                >
-                                    <div className="flex items-center justify-between mb-2">
-                                        <div className="text-2xl">{achievement.icon}</div>
-                                        <Badge className={`${getRarityColor(achievement.rarity)} text-white`}>
-                                            {achievement.rarity}
-                                        </Badge>
-                                    </div>
-                                    <h3 className="font-semibold text-green-600">{achievement.name}</h3>
-                                    <p className="text-sm text-muted-foreground mb-3">
-                                        {achievement.description}
-                                    </p>
-                                    <Button
-                                        size="sm"
-                                        onClick={() => handleMintAchievement(achievement)}
-                                        disabled={isLoading}
-                                        className="w-full"
+                {/* Unlocked Achievements */}
+                {unlockedAchievements.length > 0 && (
+                    <div className="space-y-3">
+                        <h4 className="text-sm font-semibold text-muted-foreground">Unlocked</h4>
+                        <div className="grid grid-cols-1 gap-3">
+                            {unlockedAchievements.map((achievement) => {
+                                const IconComponent = achievement.icon;
+                                return (
+                                    <div
+                                        key={achievement.id}
+                                        className={`p-3 rounded-lg border ${getRarityColor(achievement.rarity)}`}
                                     >
-                                        <Award className="mr-2 h-4 w-4" />
-                                        Mint NFT
-                                    </Button>
-                                </div>
-                            ))}
-                        </div>
-                    </CardContent>
-                </Card>
-            )}
-
-            {/* Locked Achievements */}
-            <Card className="bg-card/50 backdrop-blur-lg border-border/50">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Target className="h-6 w-6" />
-                        Locked Achievements
-                    </CardTitle>
-                    <CardDescription>Keep focusing to unlock these rewards</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {lockedAchievements.map((achievement) => (
-                            <div
-                                key={achievement.id}
-                                className="p-4 rounded-lg border border-muted bg-muted/20"
-                            >
-                                <div className="flex items-center justify-between mb-2">
-                                    <div className="text-2xl opacity-50">{achievement.icon}</div>
-                                    <Badge variant="secondary" className={getRarityTextColor(achievement.rarity)}>
-                                        {achievement.rarity}
-                                    </Badge>
-                                </div>
-                                <h3 className="font-semibold opacity-75">{achievement.name}</h3>
-                                <p className="text-sm text-muted-foreground mb-3">
-                                    {achievement.description}
-                                </p>
-                                <div className="space-y-2">
-                                    <div className="flex justify-between text-sm">
-                                        <span>Progress</span>
-                                        <span>{achievement.current}/{achievement.requirement}</span>
+                                        <div className="flex items-center gap-3">
+                                            <IconComponent className="h-6 w-6" />
+                                            <div className="flex-1">
+                                                <div className="font-medium">{achievement.title}</div>
+                                                <div className="text-xs opacity-75">{achievement.description}</div>
+                                            </div>
+                                            <Badge variant="outline" className="text-xs">
+                                                {achievement.rarity}
+                                            </Badge>
+                                        </div>
                                     </div>
-                                    <Progress 
-                                        value={(achievement.current / achievement.requirement) * 100} 
-                                        className="h-2" 
-                                    />
-                                </div>
-                            </div>
-                        ))}
+                                );
+                            })}
+                        </div>
                     </div>
-                </CardContent>
-            </Card>
-        </div>
+                )}
+
+                {/* Locked Achievements */}
+                {lockedAchievements.length > 0 && (
+                    <div className="space-y-3">
+                        <h4 className="text-sm font-semibold text-muted-foreground">Locked</h4>
+                        <div className="grid grid-cols-1 gap-3">
+                            {lockedAchievements.map((achievement) => {
+                                const IconComponent = achievement.icon;
+                                return (
+                                    <div
+                                        key={achievement.id}
+                                        className="p-3 rounded-lg border bg-muted/50 opacity-60"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <IconComponent className="h-6 w-6 text-muted-foreground" />
+                                            <div className="flex-1">
+                                                <div className="font-medium text-muted-foreground">{achievement.title}</div>
+                                                <div className="text-xs text-muted-foreground">{achievement.description}</div>
+                                            </div>
+                                            <Badge variant="outline" className="text-xs text-muted-foreground">
+                                                {achievement.rarity}
+                                            </Badge>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
+
+                {/* NFT Integration Notice */}
+                <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
+                    <div className="flex items-center gap-2 mb-2">
+                        <Gem className="h-4 w-4 text-primary" />
+                        <span className="text-sm font-medium text-primary">NFT Integration</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                        Unlocked achievements will be minted as non-transferable NFT badges using Verbwire.
+                        Each badge represents your focus journey and can be displayed in your profile.
+                    </p>
+                </div>
+            </CardContent>
+        </Card>
     );
 }
