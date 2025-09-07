@@ -1,50 +1,239 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
-/node_modules
-/.pnp
+# Dependencies and Package Managers
+**/node_modules/
+**/.pnp/
 .pnp.*
 .yarn/*
 !.yarn/patches
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+**/package-lock.json
+**/yarn.lock
+**/.npm
+**/.yarn-integrity
 
-# Focus Stake Contract
-focus-stake-contract/node_modules/
-focus-stake-contract/cache/
-focus-stake-contract/artifacts/
+# Go
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+**/go.sum
+**/vendor/
 
-# testing
-/coverage
+# Test binary, built with `go test -c`
+*.test
 
-# next.js
-/.next/
-/out/
+# Output of the go coverage tool
+*.out
 
-# production
-/build
+# Go workspace file
+go.work
+go.work.sum
 
-# misc
-.DS_Store
-*.pem
+# Build outputs
+**/build/
+**/dist/
+**/out/
+**/.next/
+**/.nuxt/
+**/.output/
 
-# debug
+# Cache directories
+**/.cache/
+**/cache/
+**/.parcel-cache/
+**/.eslintcache
+**/.stylelintcache
+
+# Testing
+**/coverage/
+**/.nyc_output/
+**/*.lcov
+**/test-results/
+**/playwright-report/
+**/test-results.xml
+
+# Next.js
+**/.next/
+**/out/
+next-env.d.ts
+**/*.tsbuildinfo
+
+# Production
+**/build/
+**/dist/
+
+# Environment files
+.env*
+!.env.example
+**/.env*
+!**/.env.example
+
+# Logs
+**/*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+lerna-debug.log*
+**/logs/
 
-# vercel
-.vercel
+# Runtime data
+**/pids
+**/*.pid
+**/*.seed
+**/*.pid.lock
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# Coverage directory used by tools like istanbul
+**/coverage/
+**/.nyc_output
 
-.genkit/*
-.env*
+# TypeScript
+**/*.tsbuildinfo
 
-# firebase
+# Optional npm cache directory
+**/.npm
+
+# Optional eslint cache
+**/.eslintcache
+
+# Microbundle cache
+**/.rpt2_cache/
+**/.rts2_cache_cjs/
+**/.rts2_cache_es/
+**/.rts2_cache_umd/
+
+# Optional REPL history
+**/.node_repl_history
+
+# Output of 'npm pack'
+**/*.tgz
+
+# Yarn Integrity file
+**/.yarn-integrity
+
+# dotenv environment variables file
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# parcel-bundler cache (https://parceljs.org/)
+**/.cache
+**/.parcel-cache
+
+# Vercel
+**/.vercel
+
+# Firebase
 firebase-debug.log
 firestore-debug.log
+**/.firebase/
+
+# AI/ML
+**/.genkit/
+**/models/
+**/*.model
+**/*.pkl
+**/*.h5
+**/*.pb
+
+# Blockchain/Smart Contracts
+**/artifacts/
+**/cache/
+**/typechain-types/
+focus-stake-contract/node_modules/
+focus-stake-contract/cache/
+focus-stake-contract/artifacts/
+
+# Docker
+**/.dockerignore
+**/Dockerfile.*
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+**/*.tmp
+**/*.temp
+
+# IDEs
+**/.vscode/
+**/.idea/
+**/*.swp
+**/*.swo
+**/*~
+
+# Temporary files
+**/tmp/
+**/temp/
+**/*.tmp
+**/*.temp
+
+# Database
+**/*.db
+**/*.sqlite
+**/*.sqlite3
+
+# Redis
+**/dump.rdb
+
+# Generated documentation
+**/docs/api/
+**/docs/build/
+
+# Backup files
+**/*.bak
+**/*.backup
+
+# Certificate files
+**/*.pem
+**/*.key
+**/*.crt
+**/*.cert
+
+# Archive files
+**/*.zip
+**/*.tar.gz
+**/*.rar
+**/*.7z
+
+# Large files (you may want to adjust these)
+**/*.iso
+**/*.dmg
+**/*.img
+
+# Jupyter Notebook
+**/.ipynb_checkpoints
+
+# Python (if any Python scripts exist)
+**/__pycache__/
+**/*.py[cod]
+**/*$py.class
+**/*.so
+**/.Python
+**/env/
+**/venv/
+**/ENV/
+**/env.bak/
+**/venv.bak/
+
+# Local development
+**/local.json
+**/local.yaml
+**/local.yml
+
+# Security
+**/secrets/
+**/.secrets/
+**/private/
+**/.private/
