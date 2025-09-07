@@ -11,6 +11,9 @@ import { Badge } from "@/components/ui/badge";
 import { Play, Pause, Square, Settings, Clock, Coins, Target } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { focusUtils } from "@/lib/gofr";
+import { generateFocusNFT, GeneratedNFT } from "@/lib/nft-generator";
+import { NFTRewardPopup } from "./NFTRewardPopup";
+import { useNFTStorage } from "@/hooks/use-nft-storage";
 
 interface FocusTimerProps {
     onSessionStart?: (sessionId: number) => void;
@@ -28,8 +31,14 @@ export function FocusTimer({ onSessionStart, onSessionComplete, onSessionUpdate 
     const [distractionCount, setDistractionCount] = useState(0);
     const [isBlockingEnabled, setIsBlockingEnabled] = useState(true);
     
+    // NFT reward system
+    const [showNFTReward, setShowNFTReward] = useState(false);
+    const [earnedNFT, setEarnedNFT] = useState<GeneratedNFT | null>(null);
+    const [isGeneratingNFT, setIsGeneratingNFT] = useState(false);
+    
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const { toast } = useToast();
+    const { saveNFT } = useNFTStorage('user-123'); // TODO: Get actual user ID
 
     // Predefined session types
     const sessionTypes = [
@@ -158,6 +167,11 @@ export function FocusTimer({ onSessionStart, onSessionComplete, onSessionUpdate 
             clearInterval(intervalRef.current);
         }
 
+        // Generate NFT if session was successful and meets criteria
+        if (isSuccess && duration >= 25) {
+            await generateNFTReward();
+        }
+
         try {
             // Call the API to complete the session
             if (sessionId) {
@@ -201,6 +215,45 @@ export function FocusTimer({ onSessionStart, onSessionComplete, onSessionUpdate 
         setTimeRemaining(duration * 60);
     };
 
+    // Generate NFT reward for successful sessions
+    const generateNFTReward = async () => {
+        setIsGeneratingNFT(true);
+        
+        try {
+            console.log('Generating NFT reward for completed session...');
+            
+            const nft = await generateFocusNFT(
+                duration,
+                new Date().toISOString(),
+                'user-123' // TODO: Get actual user ID
+            );
+            
+            // Save NFT to storage
+            saveNFT(nft);
+            
+            // Set NFT and show popup
+            setEarnedNFT(nft);
+            setShowNFTReward(true);
+            
+            console.log('NFT generated successfully:', nft.name);
+            
+        } catch (error) {
+            console.error('Failed to generate NFT reward:', error);
+            toast({
+                title: "NFT Generation Failed",
+                description: "Could not generate your reward NFT, but your session was still successful!",
+                variant: "destructive",
+            });
+        } finally {
+            setIsGeneratingNFT(false);
+        }
+    };
+
+    const handleCloseNFTReward = () => {
+        setShowNFTReward(false);
+        setEarnedNFT(null);
+    };
+
     const handleSessionTypeChange = (type: string) => {
         const selectedType = sessionTypes.find(t => t.label === type);
         if (selectedType) {
@@ -212,197 +265,220 @@ export function FocusTimer({ onSessionStart, onSessionComplete, onSessionUpdate 
     const progress = duration > 0 ? ((duration * 60 - timeRemaining) / (duration * 60)) * 100 : 0;
 
     return (
-        <div className="space-y-6">
-            {/* Session Configuration */}
-            <Card className="bg-card/50 backdrop-blur-lg border-border/50">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Target className="h-6 w-6" />
-                        Focus Session Setup
-                    </CardTitle>
-                    <CardDescription>Configure your focus session parameters</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="sessionType">Session Type</Label>
-                            <Select onValueChange={handleSessionTypeChange}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select session type" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {sessionTypes.map((type) => (
-                                        <SelectItem key={type.label} value={type.label}>
-                                            {type.label} ({focusUtils.formatDuration(type.duration)})
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        
-                        <div className="space-y-2">
-                            <Label htmlFor="duration">Duration (minutes)</Label>
-                            <Input
-                                id="duration"
-                                type="number"
-                                min="5"
-                                max="120"
-                                value={duration}
-                                onChange={(e) => setDuration(parseInt(e.target.value) || 25)}
-                                disabled={isActive}
-                            />
-                        </div>
-                        
-                        <div className="space-y-2">
-                            <Label htmlFor="stake">Stake Amount (ETH)</Label>
-                            <Input
-                                id="stake"
-                                type="number"
-                                step="0.001"
-                                min="0.001"
-                                max="1.0"
-                                value={stakeAmount}
-                                onChange={(e) => setStakeAmount(parseFloat(e.target.value) || 0.01)}
-                                disabled={isActive}
-                            />
-                        </div>
-                        
-                        <div className="space-y-2">
-                            <Label>Blocking</Label>
-                            <div className="flex items-center space-x-2">
-                                <input
-                                    type="checkbox"
-                                    id="blocking"
-                                    checked={isBlockingEnabled}
-                                    onChange={(e) => setIsBlockingEnabled(e.target.checked)}
+        <>
+            <div className="space-y-6">
+                {/* Session Configuration */}
+                <Card className="bg-card/50 backdrop-blur-lg border-border/50">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Target className="h-6 w-6" />
+                            Focus Session Setup
+                        </CardTitle>
+                        <CardDescription>Configure your focus session parameters</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="sessionType">Session Type</Label>
+                                <Select onValueChange={handleSessionTypeChange}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select session type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {sessionTypes.map((type) => (
+                                            <SelectItem key={type.label} value={type.label}>
+                                                {type.label} ({focusUtils.formatDuration(type.duration)})
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            
+                            <div className="space-y-2">
+                                <Label htmlFor="duration">Duration (minutes)</Label>
+                                <Input
+                                    id="duration"
+                                    type="number"
+                                    min="5"
+                                    max="120"
+                                    value={duration}
+                                    onChange={(e) => setDuration(parseInt(e.target.value) || 25)}
                                     disabled={isActive}
                                 />
-                                <Label htmlFor="blocking" className="text-sm">
-                                    Block distracting websites
-                                </Label>
                             </div>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-
-            {/* Timer Display */}
-            <Card className="bg-card/50 backdrop-blur-lg border-primary/20">
-                <CardHeader>
-                    <div className="flex items-center justify-between">
-                        <CardTitle className="flex items-center gap-2">
-                            <Clock className="h-6 w-6" />
-                            Focus Timer
-                        </CardTitle>
-                        <Badge variant={isActive ? "default" : "secondary"}>
-                            {isActive ? (isPaused ? "Paused" : "Active") : "Idle"}
-                        </Badge>
-                    </div>
-                    <CardDescription>
-                        {focusUtils.getSessionTypeName(duration)} session
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                    {/* Timer Circle */}
-                    <div className="flex flex-col items-center space-y-4">
-                        <div className="relative w-48 h-48">
-                            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                                {/* Background circle */}
-                                <circle
-                                    cx="50"
-                                    cy="50"
-                                    r="45"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    fill="none"
-                                    className="text-muted-foreground/20"
+                            
+                            <div className="space-y-2">
+                                <Label htmlFor="stake">Stake Amount (ETH)</Label>
+                                <Input
+                                    id="stake"
+                                    type="number"
+                                    step="0.001"
+                                    min="0.001"
+                                    max="1.0"
+                                    value={stakeAmount}
+                                    onChange={(e) => setStakeAmount(parseFloat(e.target.value) || 0.01)}
+                                    disabled={isActive}
                                 />
-                                {/* Progress circle */}
-                                <circle
-                                    cx="50"
-                                    cy="50"
-                                    r="45"
-                                    stroke="currentColor"
-                                    strokeWidth="4"
-                                    fill="none"
-                                    strokeDasharray={`${2 * Math.PI * 45}`}
-                                    strokeDashoffset={`${2 * Math.PI * 45 * (1 - progress / 100)}`}
-                                    className="text-primary transition-all duration-1000 ease-linear"
-                                />
-                            </svg>
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="text-center">
-                                    <div className="text-3xl font-mono font-bold">
-                                        {focusUtils.formatTimeRemaining(timeRemaining)}
-                                    </div>
-                                    <div className="text-sm text-muted-foreground">
-                                        {Math.round(progress)}% complete
-                                    </div>
+                            </div>
+                            
+                            <div className="space-y-2">
+                                <Label>Blocking</Label>
+                                <div className="flex items-center space-x-2">
+                                    <input
+                                        type="checkbox"
+                                        id="blocking"
+                                        checked={isBlockingEnabled}
+                                        onChange={(e) => setIsBlockingEnabled(e.target.checked)}
+                                        disabled={isActive}
+                                    />
+                                    <Label htmlFor="blocking" className="text-sm">
+                                        Block distracting websites
+                                    </Label>
                                 </div>
                             </div>
                         </div>
-                        
-                        {/* Session Stats */}
-                        <div className="grid grid-cols-2 gap-4 text-center">
-                            <div>
-                                <div className="text-2xl font-bold text-primary">
-                                    {focusUtils.formatStake(stakeAmount)}
-                                </div>
-                                <div className="text-sm text-muted-foreground">Staked</div>
-                            </div>
-                            <div>
-                                <div className="text-2xl font-bold text-destructive">
-                                    {distractionCount}
-                                </div>
-                                <div className="text-sm text-muted-foreground">Distractions</div>
-                            </div>
-                        </div>
-                    </div>
+                    </CardContent>
+                </Card>
 
-                    {/* Control Buttons */}
-                    <div className="flex justify-center gap-4">
-                        {!isActive ? (
-                            <Button
-                                onClick={handleStartSession}
-                                size="lg"
-                                className="min-w-[120px]"
-                            >
-                                <Play className="mr-2 h-4 w-4" />
-                                Start Session
-                            </Button>
-                        ) : (
-                            <>
+                {/* Timer Display */}
+                <Card className="bg-card/50 backdrop-blur-lg border-primary/20">
+                    <CardHeader>
+                        <div className="flex items-center justify-between">
+                            <CardTitle className="flex items-center gap-2">
+                                <Clock className="h-6 w-6" />
+                                Focus Timer
+                                {isGeneratingNFT && (
+                                    <Badge variant="outline" className="ml-2">
+                                        Generating NFT...
+                                    </Badge>
+                                )}
+                            </CardTitle>
+                            <Badge variant={isActive ? "default" : "secondary"}>
+                                {isActive ? (isPaused ? "Paused" : "Active") : "Idle"}
+                            </Badge>
+                        </div>
+                        <CardDescription>
+                            {focusUtils.getSessionTypeName(duration)} session
+                            {duration >= 25 && (
+                                <span className="ml-2 text-xs bg-primary/10 text-primary px-2 py-1 rounded">
+                                    🎁 NFT Reward Eligible
+                                </span>
+                            )}
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        {/* Timer Circle */}
+                        <div className="flex flex-col items-center space-y-4">
+                            <div className="relative w-48 h-48">
+                                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                                    {/* Background circle */}
+                                    <circle
+                                        cx="50"
+                                        cy="50"
+                                        r="45"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        fill="none"
+                                        className="text-muted-foreground/20"
+                                    />
+                                    {/* Progress circle */}
+                                    <circle
+                                        cx="50"
+                                        cy="50"
+                                        r="45"
+                                        stroke="currentColor"
+                                        strokeWidth="4"
+                                        fill="none"
+                                        strokeDasharray={`${2 * Math.PI * 45}`}
+                                        strokeDashoffset={`${2 * Math.PI * 45 * (1 - progress / 100)}`}
+                                        className="text-primary transition-all duration-1000 ease-linear"
+                                    />
+                                </svg>
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <div className="text-center">
+                                        <div className="text-3xl font-mono font-bold">
+                                            {focusUtils.formatTimeRemaining(timeRemaining)}
+                                        </div>
+                                        <div className="text-sm text-muted-foreground">
+                                            {Math.round(progress)}% complete
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {/* Session Stats */}
+                            <div className="grid grid-cols-2 gap-4 text-center">
+                                <div>
+                                    <div className="text-2xl font-bold text-primary">
+                                        {focusUtils.formatStake(stakeAmount)}
+                                    </div>
+                                    <div className="text-sm text-muted-foreground">Staked</div>
+                                </div>
+                                <div>
+                                    <div className="text-2xl font-bold text-destructive">
+                                        {distractionCount}
+                                    </div>
+                                    <div className="text-sm text-muted-foreground">Distractions</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Control Buttons */}
+                        <div className="flex justify-center gap-4">
+                            {!isActive ? (
                                 <Button
-                                    onClick={handlePauseSession}
-                                    variant="outline"
+                                    onClick={handleStartSession}
                                     size="lg"
+                                    className="min-w-[120px]"
+                                    disabled={isGeneratingNFT}
                                 >
-                                    {isPaused ? (
-                                        <>
-                                            <Play className="mr-2 h-4 w-4" />
-                                            Resume
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Pause className="mr-2 h-4 w-4" />
-                                            Pause
-                                        </>
-                                    )}
+                                    <Play className="mr-2 h-4 w-4" />
+                                    Start Session
                                 </Button>
-                                <Button
-                                    onClick={handleStopSession}
-                                    variant="destructive"
-                                    size="lg"
-                                >
-                                    <Square className="mr-2 h-4 w-4" />
-                                    Stop Session
-                                </Button>
-                            </>
-                        )}
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
+                            ) : (
+                                <>
+                                    <Button
+                                        onClick={handlePauseSession}
+                                        variant="outline"
+                                        size="lg"
+                                        disabled={isGeneratingNFT}
+                                    >
+                                        {isPaused ? (
+                                            <>
+                                                <Play className="mr-2 h-4 w-4" />
+                                                Resume
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Pause className="mr-2 h-4 w-4" />
+                                                Pause
+                                            </>
+                                        )}
+                                    </Button>
+                                    <Button
+                                        onClick={handleStopSession}
+                                        variant="destructive"
+                                        size="lg"
+                                        disabled={isGeneratingNFT}
+                                    >
+                                        <Square className="mr-2 h-4 w-4" />
+                                        Stop Session
+                                    </Button>
+                                </>
+                            )}
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* NFT Reward Popup */}
+            <NFTRewardPopup
+                isOpen={showNFTReward}
+                onClose={handleCloseNFTReward}
+                nft={earnedNFT}
+                sessionDuration={duration}
+            />
+        </>
     );
 }
 

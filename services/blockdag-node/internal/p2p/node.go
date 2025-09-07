@@ -187,7 +187,7 @@ func (n *Node) handlePeer(peer *Peer) {
 
 	for {
 		// Read message
-		n, err := peer.Conn.Read(buffer)
+		bytesRead, err := peer.Conn.Read(buffer)
 		if err != nil {
 			log.Printf("Error reading from peer %s: %v", peer.Address, err)
 			return
@@ -197,7 +197,7 @@ func (n *Node) handlePeer(peer *Peer) {
 		peer.LastSeen = time.Now()
 
 		// Process message
-		message := buffer[:n]
+		message := buffer[:bytesRead]
 		if err := n.processMessage(peer, message); err != nil {
 			log.Printf("Error processing message from peer %s: %v", peer.Address, err)
 		}
