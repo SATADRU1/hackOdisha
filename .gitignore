@@ -1,5 +1,16 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# =============================================================================
+# 🧹 CLEAN REPOSITORY CONFIGURATION 
+# =============================================================================
+# This .gitignore is designed to keep your repository clean and prevent
+# thousands of unnecessary commits from generated files, dependencies, and
+# build artifacts. Files ignored here can be regenerated with:
+# - npm install (for node_modules)
+# - go mod tidy (for go.sum) 
+# - npm run build (for build outputs)
+# =============================================================================
+
 # Dependencies and Package Managers
 **/node_modules/
 **/.pnp/
