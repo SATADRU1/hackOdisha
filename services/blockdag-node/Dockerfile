@@ -21,8 +21,8 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o blockdag-node ./c
 # Final stage
 FROM alpine:latest
 
-# Install ca-certificates for HTTPS requests
-RUN apk --no-cache add ca-certificates
+# Install ca-certificates, wget, and netcat for health checks
+RUN apk --no-cache add ca-certificates wget netcat-openbsd
 
 WORKDIR /root/
 

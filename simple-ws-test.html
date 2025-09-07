@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .connected { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .disconnected { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .error { background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; }
+        #messages { height: 300px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; }
+        input, button { padding: 8px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>WebSocket Connection Test</h1>
+    <div id="status" class="status disconnected">Disconnected</div>
+    
+    <div>
+        <label>WebSocket URL:</label>
+        <input type="text" id="wsUrl" value="ws://localhost/ws/studio" style="width: 300px;">
+        <button onclick="connect()">Connect</button>
+        <button onclick="disconnect()">Disconnect</button>
+    </div>
+    
+    <div>
+        <label>Message:</label>
+        <input type="text" id="message" value='{"type":"ping","timestamp":' + Date.now() + '}' style="width: 300px;">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+    
+    <div>
+        <h3>Messages:</h3>
+        <div id="messages"></div>
+        <button onclick="clearMessages()">Clear</button>
+    </div>
+
+    <script>
+        let ws = null;
+        
+        function updateStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = 'status';
+            
+            if (type === 'connected') {
+                statusDiv.classList.add('connected');
+            } else if (type === 'error') {
+                statusDiv.classList.add('error');
+            } else {
+                statusDiv.classList.add('disconnected');
+            }
+        }
+        
+        function addMessage(message, type = 'info') {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            const timestamp = new Date().toLocaleTimeString();
+            
+            messageDiv.innerHTML = `<strong>[${timestamp}] ${type.toUpperCase()}:</strong> ${message}`;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        function connect() {
+            const url = document.getElementById('wsUrl').value;
+            
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                addMessage('Already connected', 'warning');
+                return;
+            }
+            
+            try {
+                ws = new WebSocket(url);
+                addMessage(`Connecting to ${url}...`, 'info');
+                updateStatus('Connecting...');
+                
+                ws.onopen = function(event) {
+                    updateStatus('Connected', 'connected');
+                    addMessage('WebSocket connection opened', 'success');
+                    
+                    // Send initial ping
+                    sendPing();
+                };
+                
+                ws.onmessage = function(event) {
+                    try {
+                        const data = JSON.parse(event.data);
+                        addMessage(`Received: ${JSON.stringify(data, null, 2)}`, 'received');
+                    } catch (e) {
+                        addMessage(`Received raw: ${event.data}`, 'received');
+                    }
+                };
+                
+                ws.onclose = function(event) {
+                    updateStatus(`Disconnected (Code: ${event.code})`, 'disconnected');
+                    addMessage(`Connection closed: ${event.code} - ${event.reason || 'No reason'}`, 'warning');
+                };
+                
+                ws.onerror = function(event) {
+                    updateStatus('Error occurred', 'error');
+                    addMessage('WebSocket error occurred', 'error');
+                };
+                
+            } catch (error) {
+                updateStatus('Connection failed', 'error');
+                addMessage(`Failed to connect: ${error.message}`, 'error');
+            }
+        }
+        
+        function disconnect() {
+            if (ws) {
+                ws.close();
+                ws = null;
+            }
+        }
+        
+        function sendMessage() {
+            const message = document.getElementById('message').value;
+            
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                addMessage('Not connected', 'error');
+                return;
+            }
+            
+            try {
+                ws.send(message);
+                addMessage(`Sent: ${message}`, 'sent');
+            } catch (error) {
+                addMessage(`Failed to send: ${error.message}`, 'error');
+            }
+        }
+        
+        function sendPing() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                const pingMessage = JSON.stringify({
+                    type: 'ping',
+                    timestamp: Date.now()
+                });
+                ws.send(pingMessage);
+                addMessage(`Auto-ping sent`, 'sent');
+            }
+        }
+        
+        function clearMessages() {
+            document.getElementById('messages').innerHTML = '';
+        }
+        
+        // Auto-connect on page load
+        window.onload = function() {
+            addMessage('Page loaded. Click Connect to test WebSocket.', 'info');
+        };
+    </script>
+</body>
+</html>

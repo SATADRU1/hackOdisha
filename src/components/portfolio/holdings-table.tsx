@@ -9,9 +9,23 @@ import {
 import { Card } from '@/components/ui/card';
 import { holdings } from '@/lib/mock-data';
 import { cn } from '@/lib/utils';
-import { ArrowUp, ArrowDown } from 'lucide-react';
+import { ArrowUp, ArrowDown, Pickaxe } from 'lucide-react';
+import { useMining } from '@/hooks/use-mining';
 
 export default function HoldingsTable() {
+  const { holdings: miningHoldings, isLoading } = useMining();
+  
+  // Combine mock holdings with real mining holdings
+  const allHoldings = [...(miningHoldings || []), ...holdings];
+  
+  if (isLoading) {
+    return (
+      <Card className="bg-card/50 backdrop-blur-lg border-border/50 p-8">
+        <div className="text-center text-muted-foreground">Loading your holdings...</div>
+      </Card>
+    );
+  }
+
   return (
     <Card className="bg-card/50 backdrop-blur-lg border-border/50">
       <Table>
@@ -24,9 +38,20 @@ export default function HoldingsTable() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {holdings.map((holding) => (
-            <TableRow key={holding.symbol}>
-              <TableCell className="font-medium">{holding.coin} <span className="text-muted-foreground">{holding.symbol}</span></TableCell>
+          {allHoldings.map((holding, index) => (
+            <TableRow key={`${holding.symbol}-${index}`}>
+              <TableCell className="font-medium">
+                <div className="flex items-center gap-2">
+                  {holding.symbol === 'FOCUS' && <Pickaxe className="h-4 w-4 text-amber-500" />}
+                  {holding.coin} 
+                  <span className="text-muted-foreground">{holding.symbol}</span>
+                  {holding.symbol === 'FOCUS' && (
+                    <span className="text-xs bg-amber-500/20 text-amber-600 px-2 py-1 rounded-full">
+                      Mined
+                    </span>
+                  )}
+                </div>
+              </TableCell>
               <TableCell>{holding.quantity.toFixed(4)}</TableCell>
               <TableCell>${holding.value.toLocaleString()}</TableCell>
               <TableCell className={cn(

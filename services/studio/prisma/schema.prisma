@@ -1,0 +1,126 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl", "linux-musl-openssl-3.0.x", "windows"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Simple schema for starter code
+model Block {
+  id           Int           @id @default(autoincrement())
+  hash         String        @unique
+  height       Int
+  parent       String?
+  miner        String?
+  timestamp    DateTime
+  txCount      Int
+  createdAt    DateTime      @default(now())
+  transactions Transaction[]
+}
+
+model Transaction {
+  id        Int      @id @default(autoincrement())
+  txHash    String   @unique
+  blockId   Int
+  from      String
+  to        String
+  value     String
+  gas       Int
+  createdAt DateTime @default(now())
+
+  Block     Block    @relation(fields: [blockId], references: [id])
+}
+
+model Kpi {
+  id         Int      @id @default(autoincrement())
+  name       String
+  value      Float
+  windowFrom DateTime
+  windowTo   DateTime
+  createdAt  DateTime @default(now())
+}
+
+// Enhanced schema for full implementation
+model NetworkMetrics {
+  id                String   @id @default(cuid())
+  timestamp         DateTime
+  totalBlocks       Int
+  totalTransactions Int
+  activePeers       Int
+  mempoolSize       Int
+  averageBlockTime  Float
+  tps               Float
+  orphanRate        Float
+  networkHashrate   BigInt
+  difficulty        BigInt
+  createdAt         DateTime @default(now())
+
+  @@map("network_metrics")
+}
+
+model BlockMetrics {
+  id              String   @id @default(cuid())
+  blockId         String
+  confirmationTime Float?
+  propagationTime Float?
+  orphaned        Boolean  @default(false)
+  createdAt       DateTime @default(now())
+
+  @@map("block_metrics")
+}
+
+model MiningStats {
+  id           String   @id @default(cuid())
+  minerAddress String
+  blocksMined  Int      @default(0)
+  totalReward  BigInt   @default(0)
+  hashrate     BigInt   @default(0)
+  lastMined    DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([minerAddress])
+  @@map("mining_stats")
+}
+
+model AIInsight {
+  id          String   @id @default(cuid())
+  type        String   // 'anomaly', 'prediction', 'recommendation'
+  title       String
+  description String
+  confidence  Float
+  data        String   // JSON as string for SQLite
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("ai_insights")
+}
+
+model ChartData {
+  id        String   @id @default(cuid())
+  chartType String   // 'tps', 'latency', 'hashrate', 'miners'
+  timestamp DateTime
+  value     Float
+  metadata  String?  // JSON as string for SQLite
+  createdAt DateTime @default(now())
+
+  @@map("chart_data")
+}
+
+model Peer {
+  id        String   @id @default(cuid())
+  address   String   @unique
+  lastSeen  DateTime
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("peers")
+}

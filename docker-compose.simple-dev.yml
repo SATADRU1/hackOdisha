@@ -1,0 +1,89 @@
+services:
+  # PostgreSQL Database  
+  postgres:
+    image: postgres:15-alpine
+    container_name: hackodisha-postgres-dev
+    environment:
+      POSTGRES_DB: hackodisha
+      POSTGRES_USER: hackodisha
+      POSTGRES_PASSWORD: hackodisha123
+    ports:
+      - "5432:5432"
+    networks:
+      - hackodisha-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hackodisha"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: hackodisha-redis-dev
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    networks:
+      - hackodisha-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Studio Service (Development Mode with Live Reload)
+  studio:
+    build:
+      context: ./services/studio
+      dockerfile: Dockerfile.dev
+    container_name: hackodisha-studio-dev
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - HOST=0.0.0.0
+      - DATABASE_URL=postgresql://hackodisha:hackodisha123@postgres:5432/hackodisha
+      - REDIS_URL=redis://redis:6379
+      - DISABLE_WEBSOCKET=true
+    volumes:
+      # Mount source code for live reloading
+      - ./services/studio/src:/app/src:cached
+      - ./services/studio/prisma:/app/prisma:cached
+    ports:
+      - "3001:3001"
+    networks:
+      - hackodisha-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: npm run dev
+
+  # Next.js Frontend (Development Mode)
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend.dev
+    container_name: hackodisha-frontend-dev
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_STUDIO_URL=http://localhost:3001
+    volumes:
+      # Mount source code for live reloading
+      - ./src:/app/src:cached
+      - ./pages:/app/pages:cached
+      - ./components:/app/components:cached
+      - ./public:/app/public:cached
+      - ./styles:/app/styles:cached
+      - ./package.json:/app/package.json:cached
+      - ./next.config.ts:/app/next.config.ts:cached
+    ports:
+      - "3000:3000"
+    networks:
+      - hackodisha-network
+    command: npm run dev
+
+networks:
+  hackodisha-network:
+    driver: bridge

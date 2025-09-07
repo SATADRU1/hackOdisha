@@ -69,7 +69,7 @@ export async function collectNetworkMetrics(network: string = 'alpha'): Promise<
     const networkHashrate = BigInt(vertices.reduce((sum, vertex) => sum + vertex.weight, 0) * 1000000);
 
     // Calculate difficulty (simplified)
-    const difficulty = BigInt(Math.max(1, Math.floor(networkHashrate / BigInt(1000000))));
+    const difficulty = BigInt(Math.max(1, Math.floor(Number(networkHashrate) / 1000000)));
 
     return {
       timestamp: new Date(),

@@ -8,6 +8,25 @@ import { computeKPIs, startKpiWorker } from './jobs/compute-kpis';
 import { aiRoutes } from './api/ai';
 import { chartsRoutes } from './api/charts';
 import { blockdagRoutes } from './api/blockdag';
+import { miningRoutes } from './api/mining';
+
+// Helper function to safely log errors
+const logError = (fastify: any, message: string, error: unknown) => {
+  fastify.log.error(message);
+  if (error instanceof Error) {
+    fastify.log.error(error.message);
+  } else {
+    fastify.log.error(String(error));
+  }
+};
+
+// Helper function to safely log info
+const logInfo = (fastify: any, message: string, data?: unknown) => {
+  fastify.log.info(message);
+  if (data) {
+    fastify.log.info(JSON.stringify(data, null, 2));
+  }
+};
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -29,7 +48,16 @@ export const prisma = new PrismaClient();
 
 // Register plugins
 fastify.register(cors, {
-  origin: ['http://localhost:3000', 'http://localhost:8080'],
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:8080', 
+    'http://frontend:3000',
+    'http://nginx:80',
+    'http://hackodisha-frontend:3000',
+    'http://hackodisha-nginx:80',
+    // Allow any origin in Docker environment for WebSocket connections
+    process.env.NODE_ENV === 'production' ? /.*/ : true
+  ],
   credentials: true
 });
 
@@ -39,6 +67,7 @@ fastify.register(websocket);
 fastify.register(aiRoutes, { prefix: '/api/v1/ai' });
 fastify.register(chartsRoutes, { prefix: '/api/v1/charts' });
 fastify.register(blockdagRoutes, { prefix: '/api/v1/blockdag' });
+fastify.register(miningRoutes, { prefix: '/api/v1' });
 
 // Health check endpoint
 fastify.get('/health', async (request, reply) => {
@@ -58,7 +87,7 @@ fastify.register(async function (fastify) {
     connection.socket.on('message', (message) => {
       try {
         const data = JSON.parse(message.toString());
-        fastify.log.info('Received WebSocket message:', data);
+        logInfo(fastify, 'Received WebSocket message:', data);
         
         // Handle different message types
         switch (data.type) {
@@ -77,7 +106,7 @@ fastify.register(async function (fastify) {
             break;
         }
       } catch (error) {
-        fastify.log.error('WebSocket message error:', error);
+        logError(fastify, 'WebSocket message error:', error);
       }
     });
 
@@ -90,10 +119,15 @@ fastify.register(async function (fastify) {
 // Start jobs (both simple and enhanced versions)
 const rpcUrl = process.env.BLOCKDAG_RPC || 'http://localhost:8080';
 const wsUrl = process.env.BLOCKDAG_WS || 'ws://localhost:8080/ws';
+const disableWebSocket = process.env.DISABLE_WEBSOCKET === 'true';
 
 // Start simple ingest and KPI workers (starter code)
-startIngest(rpcUrl, wsUrl).catch((e) => fastify.log.error('simple ingest start err', e));
-startKpiWorker().catch((e) => fastify.log.error('simple kpi start err', e));
+if (!disableWebSocket) {
+  startIngest(rpcUrl, wsUrl).catch((e) => logError(fastify, 'simple ingest start err', e));
+} else {
+  logInfo(fastify, 'WebSocket disabled, skipping real-time ingest');
+}
+startKpiWorker().catch((e) => logError(fastify, 'simple kpi start err', e));
 
 // Scheduled jobs (enhanced implementation)
 cron.schedule('*/30 * * * * *', async () => {
@@ -101,7 +135,7 @@ cron.schedule('*/30 * * * * *', async () => {
     await ingestLedger();
     fastify.log.info('Enhanced ledger ingestion completed');
   } catch (error) {
-    fastify.log.error('Enhanced ledger ingestion failed:', error);
+    logError(fastify, 'Enhanced ledger ingestion failed:', error);
   }
 });
 
@@ -110,7 +144,7 @@ cron.schedule('0 */5 * * * *', async () => {
     await computeKPIs();
     fastify.log.info('Enhanced KPI computation completed');
   } catch (error) {
-    fastify.log.error('Enhanced KPI computation failed:', error);
+    logError(fastify, 'Enhanced KPI computation failed:', error);
   }
 });
 
@@ -123,7 +157,7 @@ const gracefulShutdown = async (signal: string) => {
     await prisma.$disconnect();
     process.exit(0);
   } catch (error) {
-    fastify.log.error('Error during shutdown:', error);
+    logError(fastify, 'Error during shutdown:', error);
     process.exit(1);
   }
 };
@@ -134,7 +168,7 @@ process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 // Start server
 const start = async () => {
   try {
-    const port = process.env.PORT ? parseInt(process.env.PORT) : 4002;
+    const port = process.env.PORT ? parseInt(process.env.PORT) : 3001;
     const host = process.env.HOST || '0.0.0.0';
     
     await fastify.listen({ port, host });

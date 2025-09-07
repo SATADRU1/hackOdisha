@@ -1,5 +1,5 @@
 -- Initialize HackOdisha database
-CREATE DATABASE IF NOT EXISTS hackodisha;
+-- Note: Database hackodisha is already created by Docker environment
 
 -- Create extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";

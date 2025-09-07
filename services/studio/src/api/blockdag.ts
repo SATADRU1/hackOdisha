@@ -2,6 +2,16 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { z } from 'zod';
 import { BlockDAGAdapter, getNetworkConfig } from '../adapters/blockdag';
 
+// Helper function to safely log errors
+const logError = (fastify: FastifyInstance, message: string, error: unknown) => {
+  fastify.log.error(message);
+  if (error instanceof Error) {
+    fastify.log.error(error.message);
+  } else {
+    fastify.log.error(String(error));
+  }
+};
+
 const NetworkSchema = z.object({
   network: z.string().optional().default('alpha'),
 });
@@ -28,8 +38,8 @@ export async function blockdagRoutes(fastify: FastifyInstance) {
         data: status,
         network: query.network,
       };
-    } catch (error) {
-      fastify.log.error('Error fetching BlockDAG status:', error);
+    } catch (error: unknown) {
+      logError(fastify, 'Error fetching BlockDAG status:', error);
       return reply.status(500).send({
         success: false,
         error: 'Failed to fetch BlockDAG status',
@@ -52,7 +62,7 @@ export async function blockdagRoutes(fastify: FastifyInstance) {
         network: query.network,
       };
     } catch (error) {
-      fastify.log.error('Error fetching peers:', error);
+      logError(fastify, 'Error fetching peers:', error);
       return reply.status(500).send({
         success: false,
         error: 'Failed to fetch peers',
@@ -74,7 +84,7 @@ export async function blockdagRoutes(fastify: FastifyInstance) {
         network: query.network,
       };
     } catch (error) {
-      fastify.log.error('Error fetching mempool:', error);
+      logError(fastify, 'Error fetching mempool:', error);
       return reply.status(500).send({
         success: false,
         error: 'Failed to fetch mempool',
@@ -97,7 +107,7 @@ export async function blockdagRoutes(fastify: FastifyInstance) {
         network: query.network,
       };
     } catch (error) {
-      fastify.log.error('Error fetching vertices:', error);
+      logError(fastify, 'Error fetching vertices:', error);
       return reply.status(500).send({
         success: false,
         error: 'Failed to fetch vertices',
@@ -120,7 +130,7 @@ export async function blockdagRoutes(fastify: FastifyInstance) {
         network: query.network,
       };
     } catch (error) {
-      fastify.log.error('Error fetching vertex:', error);
+      logError(fastify, 'Error fetching vertex:', error);
       return reply.status(500).send({
         success: false,
         error: 'Failed to fetch vertex',
@@ -143,7 +153,7 @@ export async function blockdagRoutes(fastify: FastifyInstance) {
         network: query.network,
       };
     } catch (error) {
-      fastify.log.error('Error fetching heaviest path:', error);
+      logError(fastify, 'Error fetching heaviest path:', error);
       return reply.status(500).send({
         success: false,
         error: 'Failed to fetch heaviest path',
@@ -166,7 +176,7 @@ export async function blockdagRoutes(fastify: FastifyInstance) {
         network: query.network,
       };
     } catch (error) {
-      fastify.log.error('Error submitting transaction:', error);
+      logError(fastify, 'Error submitting transaction:', error);
       return reply.status(500).send({
         success: false,
         error: 'Failed to submit transaction',
@@ -189,7 +199,7 @@ export async function blockdagRoutes(fastify: FastifyInstance) {
         network: network || 'alpha',
       };
     } catch (error) {
-      fastify.log.error('Error making RPC call:', error);
+      logError(fastify, 'Error making RPC call:', error);
       return reply.status(500).send({
         success: false,
         error: 'Failed to make RPC call',
@@ -218,7 +228,7 @@ export async function blockdagRoutes(fastify: FastifyInstance) {
         },
       };
     } catch (error) {
-      fastify.log.error('Error getting WebSocket info:', error);
+      logError(fastify, 'Error getting WebSocket info:', error);
       return reply.status(500).send({
         success: false,
         error: 'Failed to get WebSocket info',

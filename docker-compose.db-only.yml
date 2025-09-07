@@ -1,0 +1,25 @@
+﻿services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: hackodisha-postgres-local
+    environment:
+      POSTGRES_DB: hackodisha
+      POSTGRES_USER: hackodisha
+      POSTGRES_PASSWORD: hackodisha123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data_local:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: hackodisha-redis-local
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data_local:/data
+
+volumes:
+  postgres_data_local:
+  redis_data_local:

@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 import WebSocket from 'ws';
-import EventEmitter from 'events';
+import { EventEmitter } from 'events';
 
 export interface NetworkConfig {
   rpcUrl: string;
@@ -79,13 +79,16 @@ export class BlockDAGAdapter extends EventEmitter {
   private network: string;
   rpcUrl: string;
   wsUrl: string;
+  private wsRetryCount: number = 0;
+  private maxWSRetries: number = 5;
+  private wsEnabled: boolean = true;
 
   constructor(network: string = 'alpha', rpcUrl?: string, wsUrl?: string) {
     super();
     this.network = network;
     const config = getNetworkConfig(network);
     
-    this.rpcUrl = rpcUrl || `http://${config.rpcUrl}`;
+    this.rpcUrl = rpcUrl || config.rpcUrl;
     this.wsUrl = wsUrl || `ws://${config.rpcUrl.replace('http://', '').replace('https://', '')}/ws`;
     
     this.httpClient = axios.create({
@@ -186,31 +189,57 @@ export class BlockDAGAdapter extends EventEmitter {
 
   // WebSocket connection for real-time updates
   startWS() {
-    this.wsClient = new WebSocket(this.wsUrl);
-    this.wsClient.on('open', () => {
-      console.log('BlockDAG WS connected');
-      this.emit('open');
-    });
-    
-    this.wsClient.on('message', (data) => {
-      try {
-        const parsed = JSON.parse(data.toString());
-        const msg: BlockMsg = parsed;
-        this.emit('message', msg);
-      } catch (e) {
-        console.error('Error parsing WebSocket message:', e);
+    if (!this.wsEnabled || this.wsRetryCount >= this.maxWSRetries) {
+      console.log('WebSocket disabled or max retries reached');
+      return;
+    }
+
+    try {
+      this.wsClient = new WebSocket(this.wsUrl);
+      
+      this.wsClient.on('open', () => {
+        console.log('BlockDAG WS connected');
+        this.wsRetryCount = 0; // Reset retry count on successful connection
+        this.emit('open');
+      });
+      
+      this.wsClient.on('message', (data) => {
+        try {
+          const parsed = JSON.parse(data.toString());
+          const msg: BlockMsg = parsed;
+          this.emit('message', msg);
+        } catch (e) {
+          console.error('Error parsing WebSocket message:', e);
+        }
+      });
+      
+      this.wsClient.on('error', (err) => {
+        console.error('WebSocket error:', err);
+        this.wsRetryCount++;
+        this.emit('error', err);
+        
+        if (this.wsRetryCount >= this.maxWSRetries) {
+          console.log('Max WebSocket retries reached, disabling WebSocket');
+          this.wsEnabled = false;
+        }
+      });
+      
+      this.wsClient.on('close', () => {
+        console.log('WebSocket connection closed');
+        if (this.wsEnabled && this.wsRetryCount < this.maxWSRetries) {
+          this.wsRetryCount++;
+          setTimeout(() => this.startWS(), 2000 * this.wsRetryCount); // Exponential backoff
+        }
+      });
+    } catch (error) {
+      console.error('Failed to create WebSocket connection:', error);
+      this.wsRetryCount++;
+      if (this.wsRetryCount < this.maxWSRetries) {
+        setTimeout(() => this.startWS(), 2000 * this.wsRetryCount);
+      } else {
+        this.wsEnabled = false;
       }
-    });
-    
-    this.wsClient.on('error', (err) => {
-      console.error('WebSocket error:', err);
-      this.emit('error', err);
-    });
-    
-    this.wsClient.on('close', () => {
-      console.log('WebSocket connection closed');
-      setTimeout(() => this.startWS(), 2000);
-    });
+    }
   }
 
   stopWS() {

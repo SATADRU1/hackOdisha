@@ -14,6 +14,7 @@ import { focusUtils } from "@/lib/gofr";
 import { generateFocusNFT, GeneratedNFT } from "@/lib/nft-generator";
 import { NFTRewardPopup } from "./NFTRewardPopup";
 import { useNFTStorage } from "@/hooks/use-nft-storage";
+import { useMining } from "@/hooks/use-mining";
 
 interface FocusTimerProps {
     onSessionStart?: (sessionId: number) => void;
@@ -39,9 +40,13 @@ export function FocusTimer({ onSessionStart, onSessionComplete, onSessionUpdate 
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const { toast } = useToast();
     const { saveNFT } = useNFTStorage('user-123'); // TODO: Get actual user ID
+    const { startMiningSession, endMiningSession, stats } = useMining();
+    const [miningSessionId, setMiningSessionId] = useState<string | null>(null);
+    const [tokensMined, setTokensMined] = useState(0);
 
     // Predefined session types
     const sessionTypes = [
+        { duration: 1, label: 'Demo (1 min)', stake: 0.001 }, // Added for demo
         { duration: 15, label: 'Quick Focus', stake: 0.005 },
         { duration: 25, label: 'Pomodoro', stake: 0.01 },
         { duration: 45, label: 'Deep Work', stake: 0.02 },
@@ -63,6 +68,12 @@ export function FocusTimer({ onSessionStart, onSessionComplete, onSessionUpdate 
                     const newTime = prev - 1;
                     onSessionUpdate?.(newTime);
                     
+                    // Update tokens mined in real-time (0.5 tokens per minute)
+                    if (miningSessionId) {
+                        const minutesElapsed = (duration * 60 - newTime) / 60;
+                        setTokensMined(minutesElapsed * 0.5);
+                    }
+                    
                     if (newTime <= 0) {
                         handleSessionComplete(true);
                     }
@@ -80,7 +91,7 @@ export function FocusTimer({ onSessionStart, onSessionComplete, onSessionUpdate 
                 clearInterval(intervalRef.current);
             }
         };
-    }, [isActive, isPaused, timeRemaining]);
+    }, [isActive, isPaused, timeRemaining, miningSessionId, duration]);
 
     // Website blocking functionality
     useEffect(() => {
@@ -110,6 +121,11 @@ export function FocusTimer({ onSessionStart, onSessionComplete, onSessionUpdate 
 
     const handleStartSession = async () => {
         try {
+            // Start mining session first
+            const miningSession = await startMiningSession('pomodoro');
+            setMiningSessionId(miningSession.id);
+            setTokensMined(0);
+            
             // Call the API to start a focus session
             const response = await fetch('/api/gofr/focus', {
                 method: 'POST',
@@ -133,15 +149,27 @@ export function FocusTimer({ onSessionStart, onSessionComplete, onSessionUpdate 
                 
                 toast({
                     title: "Focus Session Started",
-                    description: `Staked ${focusUtils.formatStake(stakeAmount)} for ${focusUtils.formatDuration(duration)}`,
+                    description: `Mining active! Staked ${focusUtils.formatStake(stakeAmount)} for ${focusUtils.formatDuration(duration)}`,
                 });
             } else {
                 throw new Error(data.error || 'Failed to start session');
             }
         } catch (error) {
+            console.error('Failed to start session:', error);
+            
+            // Clean up mining session if it was started
+            if (miningSessionId) {
+                try {
+                    await endMiningSession(miningSessionId, 0);
+                } catch (cleanupError) {
+                    console.error('Failed to cleanup mining session:', cleanupError);
+                }
+                setMiningSessionId(null);
+            }
+            
             toast({
                 title: "Error",
-                description: "Failed to start focus session",
+                description: error instanceof Error ? error.message : "Failed to start focus session",
                 variant: "destructive",
             });
         }
@@ -165,6 +193,18 @@ export function FocusTimer({ onSessionStart, onSessionComplete, onSessionUpdate 
         
         if (intervalRef.current) {
             clearInterval(intervalRef.current);
+        }
+
+        // End mining session if it exists
+        if (miningSessionId) {
+            try {
+                const actualDuration = Math.round((duration * 60 - timeRemaining) / 60);
+                const result = await endMiningSession(miningSessionId, actualDuration);
+                setTokensMined(result.tokensEarned || 0);
+            } catch (error) {
+                console.error('Failed to end mining session:', error);
+            }
+            setMiningSessionId(null);
         }
 
         // Generate NFT if session was successful and meets criteria
@@ -330,6 +370,7 @@ export function FocusTimer({ onSessionStart, onSessionComplete, onSessionUpdate 
                                         checked={isBlockingEnabled}
                                         onChange={(e) => setIsBlockingEnabled(e.target.checked)}
                                         disabled={isActive}
+                                        aria-label="Enable website blocking during focus sessions"
                                     />
                                     <Label htmlFor="blocking" className="text-sm">
                                         Block distracting websites
@@ -347,6 +388,11 @@ export function FocusTimer({ onSessionStart, onSessionComplete, onSessionUpdate 
                             <CardTitle className="flex items-center gap-2">
                                 <Clock className="h-6 w-6" />
                                 Focus Timer
+                                {miningSessionId && (
+                                    <Badge variant="outline" className="ml-2 bg-green-500/10 text-green-600 border-green-500/20">
+                                        ⛏️ Mining Active
+                                    </Badge>
+                                )}
                                 {isGeneratingNFT && (
                                     <Badge variant="outline" className="ml-2">
                                         Generating NFT...
@@ -407,12 +453,18 @@ export function FocusTimer({ onSessionStart, onSessionComplete, onSessionUpdate 
                             </div>
                             
                             {/* Session Stats */}
-                            <div className="grid grid-cols-2 gap-4 text-center">
+                            <div className="grid grid-cols-3 gap-4 text-center">
                                 <div>
                                     <div className="text-2xl font-bold text-primary">
                                         {focusUtils.formatStake(stakeAmount)}
                                     </div>
                                     <div className="text-sm text-muted-foreground">Staked</div>
+                                </div>
+                                <div>
+                                    <div className="text-2xl font-bold text-green-500">
+                                        {miningSessionId ? tokensMined.toFixed(1) : '0.0'}
+                                    </div>
+                                    <div className="text-sm text-muted-foreground">FOCUS Mined</div>
                                 </div>
                                 <div>
                                     <div className="text-2xl font-bold text-destructive">
