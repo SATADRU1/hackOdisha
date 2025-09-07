@@ -1,3 +1,5 @@
+'use client';
+
 import HoldingsTable from '@/components/portfolio/holdings-table';
 import HistoryTable from '@/components/portfolio/history-table';
 import { Button } from '@/components/ui/button';
